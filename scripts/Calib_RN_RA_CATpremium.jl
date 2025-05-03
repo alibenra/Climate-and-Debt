@@ -37,7 +37,11 @@ function calibrate_model_RN(target_spread::Float64, target_debt_gdp::Float64;
     sorted_df = sort(df, :loss)
     @save "output/calibration_RN.jld2" df
     println("Top RN Calibration Results:")
-    println(first(sorted_df, 10))
+    println(first(sorted_df, 15))
+    open("output/calibration_RN_top15.txt", "w") do io
+        println(io, "Top RA Calibration Results:")
+        show(io, MIME"text/plain"(), first(sorted_df, 15))
+    end
     return sorted_df
 end
 
@@ -69,14 +73,19 @@ function calibrate_model_RA(target_spread::Float64, target_debt_gdp::Float64;
 
     df = DataFrame(results, [:beta, :wc_par_asymm, :avgSpread, :DebtGDP, :loss])
     sorted_df = sort(df, :loss)
+    @save "output/calibration_RA.jld2" df
     println("Top RA Calibration Results:")
-    println(first(sorted_df, 10))
+    println(first(sorted_df, 15))
+    open("output/calibration_RA_top15.txt", "w") do io
+        println(io, "Top RA Calibration Results:")
+        show(io, MIME"text/plain"(), first(sorted_df, 15))
+    end
     return sorted_df
 end
 
 # Run and save both calibrations (optionally comment out as needed)
-best_calib_RN = calibrate_model_RN(550.0, 0.49)
-best_calib_RA = calibrate_model_RA(550.0, 0.49)
+best_calib_RN = calibrate_model_RN(519.0, 0.49)
+best_calib_RA = calibrate_model_RA(519.0, 0.49)
 
 # ================================
 # Computing the CAT Bond Premium
@@ -108,3 +117,6 @@ function compute_cat_premium(country::String="Jamaica", r::Float64=0.0451, b_g_v
 end
 
 cat_premia = compute_cat_premium("Jamaica")
+cat_premia = cat_premia[1]
+
+@save "output/cat_premia.jld2" cat_premia

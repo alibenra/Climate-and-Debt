@@ -9,8 +9,8 @@ Random.seed!(19)
 # ========================================================
 
 # Calibration Parameters
-global_beta = 0.93 # Target Debt/GDP
-global_wc = 0.69 # Target Mean Spread
+global_beta = 0.92 # Target Debt/GDP
+global_wc = 0.72 # Target Mean Spread
 
 function get_country_params(country::String)
     cc_int = 1 # Equals to 1 when there is hurricane risk
@@ -569,8 +569,8 @@ function main_country_RN(country::String)
     # 3. Simulation of the Markov Chain and Moments
     # ------------------------------------------------------
     i_x_sim = simulate_markov_chain(P_x, N_h, N_y, T_sim)
-    dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, V_g_mean_rn, def_mean, y_sim, h_sim =
-        simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess, v_guess_rn, v_bad_guess_rn)
+    dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, def_mean, y_sim, h_sim =
+        simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
 
     B_g_sim = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta + mu_r))
     B_g_sim_market = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta .+ r_g_mean))
@@ -621,7 +621,7 @@ function main_country_RN(country::String)
     @printf("GDP Mean Store: %f\n", gdp_mean_store)
 
     # Save simulation moments (using JLD2, for example)
-    @save "output/table2_panelB.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean V_g_mean_rn
+    @save "output/table2_panelB.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
     @save "output/gdp_mean_storemat.jld2" gdp_mean_store
 
     return (
