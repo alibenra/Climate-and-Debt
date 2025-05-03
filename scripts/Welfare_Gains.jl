@@ -17,8 +17,7 @@ function compute_ceq_gain(benchmark_path::String, bench_var::Symbol,
     return (Model=label, WelfareGain=100 * gain)
 end
 
-
-# Collect results
+# Collect CEQ welfare results
 welfare_results = [
     compute_ceq_gain("output/Vg_sim_bench_RN.jld2", :V_g_bench_RN,
                      "output/Vg_sim_1P_RN.jld2",    :V_g_1P_RN;    label="1P_RN"),
@@ -39,7 +38,49 @@ welfare_results = [
                      "output/Vg_sim_CAT_RA.jld2",   :V_g_CAT_RA;   label="CAT_RA")
 ]
 
-
 df_welfare = DataFrame(welfare_results)
+
 println("\nSummary of Welfare Gains (% vs. benchmark):")
 display(df_welfare)
+
+# --- Write Typst Table ---
+# --- Write Stylized Typst Table ---
+open("output/welfare_gains.typ", "w") do io
+    println(io, "#show figure: set block(breakable: true)\n")
+
+    println(io, "#figure(")
+    println(io, "  kind: \"table\",")
+    println(io, "  supplement: \"Table\",")
+
+    println(io, "block[")
+    println(io, "  #table(")
+    println(io, "    columns: (auto, auto),")
+    println(io, "    align: (x, y) => if x == 0 { left } else { center },")
+    println(io, "    stroke: none,")
+    println(io, "    inset: 6pt,")
+
+    println(io, "    table.hline(y: 0, start: 0, end: 2, stroke: 0.8pt),")
+    println(io, "    table.hline(y: 1, start: 0, end: 2, stroke: 0.8pt),")
+    println(io, "    table.hline(y: $(nrow(df_welfare) + 1), start: 0, end: 2, stroke: 0.8pt),\n")
+
+    println(io, "    table.header(")
+    println(io, "      [*Model*], [*Welfare Gain (%)*]")
+    println(io, "    ),")
+
+    for row in eachrow(df_welfare)
+        @printf(io, "    [*%s*], [%.3f],\n", row.Model, row.WelfareGain)
+    end
+
+    println(io, "\n    table.footer(")
+    println(io, "      table.cell(")
+    println(io, "        colspan: 2,")
+    println(io, "        align: left,")
+    println(io, "        inset: 4pt,")
+    println(io, "        emph(\"Consumption-equivalent welfare gains relative to the benchmark.\")")
+    println(io, "      )")
+    println(io, "    )")
+
+    println(io, "  )\n]")
+    println(io, ")")
+end
+

@@ -1,6 +1,6 @@
 cd(normpath(joinpath(@__DIR__, "..")))
 
-using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plots
+using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plots, Random
 
 # ========================================================
 # 0. Country-Specific Parameter Function
@@ -13,16 +13,17 @@ function get_country_params(country::String)
     return (
         sigma_ey = 0.026,
         rho_y = 0.96,
-        beta = 0.86,
-        beta_RA = 0.86,
-        wc_par_asymm = 0.78,
-        wc_par_asymm_RA = 0.78,
+        beta = 0.82,
+        beta_RA = 0.82,
+        wc_par_asymm = 0.76,
+        wc_par_asymm_RA = 0.76,
         delta = 0.0564,
         sigma_eh = 0.02,
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
         f_CAT  = 0.55,   # B_CAT = 1.55% of outstanding b
-        Π_cat  = 0.0571     # placeholder premium on CAT bonds
+        Π_cat  = 0.0571,     # placeholder premium on CAT bonds
+        share = 0.0
         )
 end
 
@@ -169,10 +170,8 @@ function compute_autarky_utility(h_vec_2sh, y_vec_2sh, wc_par_asymm, gdp_mean, g
     c_aut = h_vec_2sh .* y_vec_2sh # represents income under default
     c_aut = map(x -> x > wc_par_asymm * gdp_mean ? wc_par_asymm * gdp_mean : x, c_aut) # This  cap reflects the notion that during default (or autarky) there is a binding consumption constraint—the economy is unable to fully smooth consumption and hence faces an upper bound on consumption.
     util_aut = 1 / (1 - gamma_c) * c_aut.^(1 - gamma_c) # CRRA utility function
-    # Also define risk-neutral autarky utility as simply c_aut
-    util_aut_rn = copy(c_aut)
     @printf("Julia: Utility under autarky computed.\n")
-    return util_aut, util_aut_rn
+    return util_aut
 end
 # This autarky utility calculation is then used within the value function iteration (VFI) step. 
 
@@ -184,7 +183,7 @@ end
 function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_r,
     gamma_c, ev_rho, ev_rho_def, eulgam,
     N_y, N_h, N_x, N_b_g, qrf_lt, qrf_vec, gdp_mean, P_x,
-    y_vec_2sh, h_vec_2sh, util_aut, util_aut_rn, λ,
+    y_vec_2sh, h_vec_2sh, util_aut, λ, share,
     damp_v=0.8, damp_q=0.8, maxiter_v=300, maxiter_q=600, tol_v=1e-3, tol_q=1e-6)
 
     #########################################################################
@@ -223,12 +222,10 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
     #########################################################################
     # 2. Debt Relief Setup
     #########################################################################
-    share = 0.0  # Set to 0.0 so that all debt in a hurricane state follows the relief branch.
     dummy_rel_vec = map(h -> h < 1.0 ? 1 : 0, h_vec_2sh)
     dummy_rel = repeat(reshape(dummy_rel_vec, N_x, 1), 1, N_b_g)
     # << NEW >> Initialize separate relief branch value functions:
     v_rel_guess = zeros(N_x, N_b_g)
-    v_rel_guess_rn = zeros(N_x, N_b_g)
 
     #########################################################################
     # 3. Initialization of Value Functions and Bond Prices
@@ -237,8 +234,6 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
 
     v_guess = zeros(N_x, N_b_g)
     v_bad_guess = zeros(N_x)
-    v_guess_rn = zeros(N_x, N_b_g)
-    v_bad_guess_rn = zeros(N_x)
     # In the inner loop we compute default probabilities separately for standard and relief.
     def_std = fill(NaN, N_x, N_b_g)
     def_rel = fill(NaN, N_x, N_b_g)
@@ -373,56 +368,13 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
             v_guess_new_combined = (1 .- dummy_rel) .* v_guess_new + dummy_rel .* v_rel_guess
             v_guess_new = v_guess_new_combined
 
-            # --- Risk Neutral Branch (unchanged) ---
-            e_v_guess_rn = P_x * v_guess_rn
-            temp_rn = repeat(e_v_guess_rn, 1, 1, N_b_g)
-            e_v_guess_3grid_rn = permutedims(temp_rn, (1, 3, 2))
-            v_badgood_guess_rn = v_guess_rn[:, i_b_g_zero[2]]
-            e_v_badgood_guess_rn = P_x * v_badgood_guess_rn
-            e_v_bad_guess_rn = P_x * v_bad_guess_rn
-
-            temp_qg_rn = repeat(q_g, 1, 1, N_b_g)
-            q_g_3d_rn = permutedims(temp_qg_rn, (1, 3, 2))
-            temp_bchoice_rn = repeat(b_choice_2grid, 1, 1, N_b_g)
-            b_choice_3d_rn = permutedims(temp_bchoice_rn, (1, 3, 2))
-            borr_rev_choice_3grid_rn = q_g_3d_rn .* (b_choice_3d_rn .- (1 - delta) .* b_state_grid)
-            cons_choice_rn = h_state_grid .* y_state_grid .- b_state_grid .+ borr_rev_choice_3grid_rn
-            cons_choice_rn .= map(x -> x < eps() ? eps() : x, cons_choice_rn)
-            util_choice_rn = cons_choice_rn  # risk neutral: utility = consumption
-            borrower_maximand_rn = util_choice_rn .+ beta .* e_v_guess_3grid_rn
-
-            v_good_guess_noev_rn = zeros(N1, N2)
-            for i in 1:N1, j in 1:N2
-                v_good_guess_noev_rn[i,j] = borrower_maximand_rn[i,j, i_b_max_new_noev[i,j]]
-            end
-            temp_max_rn = repeat(v_good_guess_noev_rn, 1, 1, N_b_g)
-            norma_explog_rn = repeat(v_good_guess_noev_rn, 1, 1, N_b_g)
-            temp_exp_rn = sum(exp.((1 / ev_rho) .* (borrower_maximand_rn .- norma_explog_rn)), dims=3)
-            temp_exp_rn = dropdims(temp_exp_rn, dims=3)
-            v_good_guess_new_rn = eulgam * ev_rho .+ v_good_guess_noev_rn .+ ev_rho .* log.(temp_exp_rn)
-            v_bad_guess_new_rn = util_aut_rn .+ beta .* (λ .* e_v_badgood_guess_rn .+ (1 - λ) .* e_v_bad_guess_rn)
-            temp_bad_rn = repeat(v_bad_guess_new_rn, 1, N_b_g)
-            v_guess_new_rn = eulgam * ev_rho .+ v_good_guess_new_rn .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (-v_good_guess_new_rn .+ temp_bad_rn)))
-            v_guess_new_flip_rn = eulgam * ev_rho .+ temp_bad_rn .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (v_good_guess_new_rn .- temp_bad_rn)))
-            for idx in eachindex(def_new)
-                if def_new[idx] > 0.999
-                    v_guess_new_rn[idx] = v_guess_new_flip_rn[idx]
-                end
-            end
-            temp_bad_rn_rep = repeat(v_bad_guess_new_rn, 1, N_b_g)
-            v_guess_new_rn[v_guess_new_rn .== Inf] .= temp_bad_rn_rep[v_guess_new_rn .== Inf]
-
             # --- End Inner Loop: Update Value Function Guesses ---
             v_old = copy(v_guess)
             v_bad_old = copy(v_bad_guess)
-            v_old_rn = copy(v_guess_rn)
-            v_bad_old_rn = copy(v_bad_guess_rn)
 
             v_guess = damp_v .* v_guess_new .+ (1 - damp_v) .* v_old
             v_bad_guess = damp_v .* v_bad_guess_new .+ (1 - damp_v) .* v_bad_old
-            v_guess_rn = damp_v .* v_guess_new_rn .+ (1 - damp_v) .* v_old_rn
-            v_bad_guess_rn = damp_v .* v_bad_guess_new_rn .+ (1 - damp_v) .* v_bad_old_rn
-
+            
             diff_v = maximum(abs.(v_guess_new .- v_old))
             @printf("Inner iteration %d: diff_v = %.4e\n", iter_v, diff_v)
             iter_v += 1
@@ -500,20 +452,18 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
     #########################################################################
     global v_guess = copy(v_guess)
     global v_bad_guess = copy(v_bad_guess)
-    global v_guess_rn = copy(v_guess_rn)
-    global v_bad_guess_rn = copy(v_bad_guess_rn)
     global q_g = copy(q_g)
     global def_pf = copy(def_new)
     global prob_choice = copy(prob_choice)
     @printf("Default iteration converged in %d outer iterations.\n", iter_q)
 
-    return (b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, v_guess_rn, v_bad_guess_rn, def_pf, prob_choice)
+    return (b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, def_pf, prob_choice)
 end
 # ========================================================
 # 4. Simulation of the Markov Chain and Moments
 # ========================================================
 
-function simulate_markov_chain(P_x, N_h, N_y, T_sim)
+function simulate_markov_chain(rng::AbstractRNG, P_x, N_h, N_y, T_sim)
     size_grid = (N_h, N_y)
     row0 = floor(Int, N_h / 2) + 1
     col0 = floor(Int, N_y / 2) + 1
@@ -534,7 +484,7 @@ function simulate_markov_chain(P_x, N_h, N_y, T_sim)
     end
     @printf("T_sim = %d\nInitial state (s0) = %d (row = %d, col = %d)\nSize of T: %d x %d\nLength of V: %d\n",
             T_sim, s0, row0, col0, r, c, length(V_vec))
-    X = rand(n - 1)
+    X = rand(rng, n - 1)
     s = zeros(Float64, r)
     s[s0] = 1.0
     cum = T * triu(ones(r, r))
@@ -549,7 +499,7 @@ function simulate_markov_chain(P_x, N_h, N_y, T_sim)
     return i_x_sim
 end
 
-function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess, v_guess_rn, v_bad_guess_rn)
+function simulation_loop!(rng, i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
     N_x = size(P_x, 1)
     N_b_g = length(b_g_vec)
     dist_sim = zeros(Float64, N_x, N_b_g, T_sim + 1)
@@ -559,7 +509,6 @@ function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh,
     q_g_mean = zeros(Float64, T_sim)
     b_g_mean = zeros(Float64, T_sim)
     V_g_mean = zeros(Float64, T_sim)
-    V_g_mean_rn = zeros(Float64, T_sim)
     def_mean = zeros(Float64, T_sim)
 
     y_sim = y_vec_2sh[Int.(i_x_sim[1:T_sim])]
@@ -581,16 +530,14 @@ function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh,
             b_mat = repeat(reshape(b_g_vec, 1, length(b_g_vec)), N_x, 1)
             b_g_mean[t_sim] = sum(b_mat .* dist_sim[:, :, t_sim]) / total_mass
             V_g_mean[t_sim] = sum(v_guess .* dist_sim[:, :, t_sim]) / total_mass
-            V_g_mean_rn[t_sim] = sum(v_guess_rn .* dist_sim[:, :, t_sim]) / total_mass
             def_mean[t_sim] = sum(def_pf .* dist_sim[:, :, t_sim]) / total_mass
         else
-            mass_acc[t_sim + 1] = (rand() < λ) ? 1.0 : 0.0
+            mass_acc[t_sim + 1] = (rand(rng) < λ) ? 1.0 : 0.0
             dist_sim[Int(i_x_sim[t_sim + 1]), i_b_g_zero[2], t_sim + 1] = 1.0
             r_g_mean[t_sim] = NaN
             q_g_mean[t_sim] = NaN
             b_g_mean[t_sim] = NaN
             V_g_mean[t_sim] = v_bad_guess[Int(i_x_sim[t_sim]), 1]
-            V_g_mean_rn[t_sim] = v_bad_guess_rn[Int(i_x_sim[t_sim]), 1]
             def_mean[t_sim] = 1.0
         end
         @printf("t_sim = %d, mass_acc = %.4f, total mass in dist = %.4f\n", t_sim, mass_acc[t_sim], sum(dist_sim[:, :, t_sim]))
@@ -598,7 +545,7 @@ function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh,
         @printf("V_g_mean(%d) = %.4e, def_mean(%d) = %.4e\n", t_sim, V_g_mean[t_sim], t_sim, def_mean[t_sim])
     end
 
-    return (dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, V_g_mean_rn, def_mean, y_sim, h_sim)
+    return (dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, def_mean, y_sim, h_sim)
 end
 
 # ========================================================
@@ -625,6 +572,7 @@ function main_country_2P_RA(country::String)
     cc_int        = 1
     mean_h        = country_params.mean_h
     p_hu          = country_params.p_hu
+    share         = country_params.share
 
     mu_r = 0.0451
     gamma_c = 2
@@ -655,20 +603,21 @@ function main_country_2P_RA(country::String)
     gdp_mean = gdp_mean_full[floor(Int, N_y * N_h / 2) + 1]
     @printf("Julia: gdp_mean = %f\n", gdp_mean)
 
-    util_aut, util_aut_rn = compute_autarky_utility(h_vec_2sh, y_vec_2sh, wc_par_asymm, gdp_mean, gamma_c)
+    util_aut = compute_autarky_utility(h_vec_2sh, y_vec_2sh, wc_par_asymm, gdp_mean, gamma_c)
 
-    b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, v_guess_rn, v_bad_guess_rn, def_pf, prob_choice =
+    b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, def_pf, prob_choice =
         default_iteration_2P_RA!(
             sigma_ey = sigma_ey, rho_y = rho_y, beta = beta, wc_par_asymm = wc_par_asymm, delta = delta, mu_r = mu_r,
             gamma_c = gamma_c, ev_rho = ev_rho, ev_rho_def = ev_rho_def, eulgam = eulgam,
             N_y = N_y, N_h = N_h, N_x = N_x, N_b_g = N_b_g, qrf_lt = qrf_lt, qrf_vec = qrf_vec, gdp_mean = gdp_mean, P_x = P_x,
-            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, util_aut_rn = util_aut_rn, λ = λ,
+            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ, share = share,
             damp_v = damp_v, damp_q = damp_q, maxiter_v = maxiter_v, maxiter_q = maxiter_q, tol_v = tol_v, tol_q = tol_q
         )
 
-    i_x_sim = simulate_markov_chain(P_x, N_h, N_y, T_sim)
-    dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, V_g_mean_rn, def_mean, y_sim, h_sim =
-        simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess, v_guess_rn, v_bad_guess_rn)
+    rng = MersenneTwister(19)
+    i_x_sim = simulate_markov_chain(rng, P_x, N_h, N_y, T_sim)
+    dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, def_mean, y_sim, h_sim =
+        simulation_loop!(rng, i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
 
     B_g_sim = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta + mu_r))
     B_g_sim_market = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta .+ r_g_mean))
@@ -718,8 +667,7 @@ function main_country_2P_RA(country::String)
     @printf("Spread Increase in Hurricane Year: %f\n", spread_g_h_sim)
     @printf("GDP Mean Store: %f\n", gdp_mean_store)
 
-    @save "output/table2_panelB.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean V_g_mean_rn
-    @save "output/gdp_mean_storemat.jld2" gdp_mean_store
+    @save "output/sim_2P_PC_RA.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
 
     return (
         country = country,

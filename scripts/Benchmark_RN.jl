@@ -2,8 +2,6 @@ cd(normpath(joinpath(@__DIR__, "..")))
 
 using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plots, Random
 
-Random.seed!(19)
-
 # ========================================================
 # 0. Country-Specific Parameter Function
 # ========================================================
@@ -399,7 +397,7 @@ end
 # 4. Simulation of the Markov Chain and Moments
 # ========================================================
 
-function simulate_markov_chain(P_x, N_h, N_y, T_sim)
+function simulate_markov_chain(rng::AbstractRNG, P_x, N_h, N_y, T_sim)
     size_grid = (N_h, N_y)
     row0 = floor(Int, N_h / 2) + 1
     col0 = floor(Int, N_y / 2) + 1
@@ -420,7 +418,7 @@ function simulate_markov_chain(P_x, N_h, N_y, T_sim)
     end
     @printf("T_sim = %d\nInitial state (s0) = %d (row = %d, col = %d)\nSize of T: %d x %d\nLength of V: %d\n",
             T_sim, s0, row0, col0, r, c, length(V_vec))
-    X = rand(n - 1)
+    X = rand(rng, n - 1)
     s = zeros(Float64, r)
     s[s0] = 1.0
     cum = T * triu(ones(r, r))
@@ -435,7 +433,7 @@ function simulate_markov_chain(P_x, N_h, N_y, T_sim)
     return i_x_sim
 end
 
-function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
+function simulation_loop!(rng, i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
     N_x = size(P_x, 1)
     N_b_g = length(b_g_vec)
     dist_sim = zeros(Float64, N_x, N_b_g, T_sim + 1)
@@ -468,7 +466,7 @@ function simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh,
             V_g_mean[t_sim] = sum(v_guess .* dist_sim[:, :, t_sim]) / total_mass
             def_mean[t_sim] = sum(def_pf .* dist_sim[:, :, t_sim]) / total_mass
         else
-            mass_acc[t_sim + 1] = (rand() < λ) ? 1.0 : 0.0
+            mass_acc[t_sim + 1] = (rand(rng) < λ) ? 1.0 : 0.0
             dist_sim[Int(i_x_sim[t_sim + 1]), i_b_g_zero[2], t_sim + 1] = 1.0
             r_g_mean[t_sim] = NaN
             q_g_mean[t_sim] = NaN
@@ -568,9 +566,10 @@ function main_country_RN(country::String)
     # ------------------------------------------------------
     # 3. Simulation of the Markov Chain and Moments
     # ------------------------------------------------------
-    i_x_sim = simulate_markov_chain(P_x, N_h, N_y, T_sim)
+    rng = MersenneTwister(19)
+    i_x_sim = simulate_markov_chain(rng, P_x, N_h, N_y, T_sim)
     dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, def_mean, y_sim, h_sim =
-        simulation_loop!(i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
+        simulation_loop!(rng, i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
 
     B_g_sim = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta + mu_r))
     B_g_sim_market = (1 ./(y_sim .* h_sim)) .* (b_g_mean ./ (delta .+ r_g_mean))
@@ -621,8 +620,7 @@ function main_country_RN(country::String)
     @printf("GDP Mean Store: %f\n", gdp_mean_store)
 
     # Save simulation moments (using JLD2, for example)
-    @save "output/table2_panelB.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
-    @save "output/gdp_mean_storemat.jld2" gdp_mean_store
+    @save "output/sim_bench_RN.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
 
     return (
         country = country,
@@ -693,7 +691,4 @@ V_g_bench_RN = result_bench_RN.V_g_mean
 gamma_c = result_bench_RN.gamma_c
 
 @save "output/Vg_sim_bench_RN.jld2" V_g_bench_RN gamma_c
-
-
-
 

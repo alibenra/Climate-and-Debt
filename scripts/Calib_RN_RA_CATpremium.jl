@@ -2,8 +2,6 @@ cd(normpath(joinpath(@__DIR__, "..")))
 
 using JLD2, DataFrames, Printf, Random
 
-Random.seed!(19)
-
 include("Benchmark_RN.jl")  # This defines `main_country_RN`
 include("Benchmark_RA.jl")  # This defines `main_country_RA`
 
