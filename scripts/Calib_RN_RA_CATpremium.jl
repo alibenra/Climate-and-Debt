@@ -47,7 +47,7 @@ end
 # Calibrating RA
 # ================================
 function calibrate_model_RA(target_spread::Float64, target_debt_gdp::Float64;
-    beta_range=0.80:0.01:0.96, wc_range=0.68:0.01:0.80,
+    beta_range=0.80:0.005:0.96, wc_range=0.68:0.01:0.80,
     country="Jamaica")
 
     results = []

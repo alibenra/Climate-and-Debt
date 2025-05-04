@@ -13,10 +13,10 @@ function get_country_params(country::String)
     return (
         sigma_ey = 0.026,
         rho_y = 0.96,
-        beta = 0.82,
-        beta_RA = 0.82,
-        wc_par_asymm = 0.76,
-        wc_par_asymm_RA = 0.76,
+        beta = 0.86,
+        beta_RA = 0.86,
+        wc_par_asymm = 0.78,
+        wc_par_asymm_RA = 0.78,
         delta = 0.0564,
         sigma_eh = 0.02,
         mean_h = 1 - cc_int * 0.023,
@@ -640,7 +640,7 @@ function main_country_1P_RA(country::String)
             damp_v = damp_v, damp_q = damp_q, maxiter_v = maxiter_v, maxiter_q = maxiter_q, tol_v = tol_v, tol_q = tol_q
         )
     
-    rng = MersenneTwister(19)
+    rng = MersenneTwister(29)
     i_x_sim = simulate_markov_chain(rng, P_x, N_h, N_y, T_sim)
     dist_sim, mass_acc, r_g_mean, q_g_mean, b_g_mean, V_g_mean, def_mean, y_sim, h_sim =
         simulation_loop!(rng, i_x_sim, P_x, def_pf, q_g_pf, q_g, b_g_vec, y_vec_2sh, h_vec_2sh, λ, T_sim, wc_par_asymm, gdp_mean, delta, prob_choice, v_guess, v_bad_guess)
