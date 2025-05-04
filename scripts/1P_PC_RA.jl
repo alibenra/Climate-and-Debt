@@ -13,8 +13,8 @@ function get_country_params(country::String)
     return (
         sigma_ey = 0.026,
         rho_y = 0.96,
-        beta = 0.86,
-        beta_RA = 0.86,
+        beta = 0.85,
+        beta_RA = 0.85,
         wc_par_asymm = 0.78,
         wc_par_asymm_RA = 0.78,
         delta = 0.0564,
@@ -254,8 +254,8 @@ function default_iteration_1P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
     # Form an effective state from income and hurricane shock.
     log_y_eff = log.(y_vec_2sh) .+ log.(h_vec_2sh)
     eta2 = sigma_ey^2
-    alpha0 = 11        # adjust as necessary
-    alpha1 = -141.0      # adjust as necessary
+    alpha0 = 9        # adjust as necessary
+    alpha1 = -100.0      # adjust as necessary
     r_star = mu_r
     N_x_val = length(y_vec_2sh)
     M_mat = zeros(N_x_val, N_x_val)
