@@ -7,8 +7,8 @@ using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plo
 # ========================================================
 
 # Calibration Parameters
-global_beta = 0.85 # for 6 and -70, pick 0.86 with seed 26 (but for 11 and -141, pick seed 29 and 0.855)
-global_wc = 0.78 # for 6 and -70, pick 0.765 with seed 26 (but for 11 and -141, pick seed 29 and 0.78)
+global_beta = 0.86 # for 6 and -70, pick 0.86 with seed 26 (but for 11 and -141, pick seed 29 and 0.855)
+global_wc = 0.76 # for 6 and -70, pick 0.765 with seed 26 (but for 11 and -141, pick seed 29 and 0.78)
 
 function get_country_params(country::String)
     cc_int = 1 # Equals to 1 when there is hurricane risk
@@ -246,8 +246,8 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
     # y_vec_2sh is passed to default_iteration! and is assumed to be a vector of income levels (length N_x).
     log_y_eff = log.(y_vec_2sh) + log.(h_vec_2sh)
     eta2 = sigma_ey^2        # variance of the income shock (sigma_ey is from the country parameters)
-    alpha0 = 9            # as specified
-    alpha1 = -100         # as specified
+    alpha0 = 8            # as specified
+    alpha1 = -80        # as specified
     r_star = mu_r            # risk-free rate (mu_r is passed as a parameter)
     N_x_val = length(y_vec_2sh)
     M_mat = zeros(N_x_val, N_x_val)
