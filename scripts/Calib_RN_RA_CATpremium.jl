@@ -47,7 +47,7 @@ end
 # Calibrating RA
 # ================================
 function calibrate_model_RA(target_spread::Float64, target_debt_gdp::Float64;
-    beta_range=0.80:0.005:0.96, wc_range=0.68:0.01:0.80,
+    beta_range=0.80:0.005:0.96, wc_range=0.68:0.005:0.85,
     country="Jamaica")
 
     results = []
@@ -83,7 +83,7 @@ end
 
 # Run and save both calibrations (optionally comment out as needed)
 best_calib_RN = calibrate_model_RN(519.0, 0.49)
-best_calib_RA = calibrate_model_RA(519.0, 0.49)
+best_calib_RA = calibrate_model_RA(550.0, 0.49)
 
 # ================================
 # Computing the CAT Bond Premium
