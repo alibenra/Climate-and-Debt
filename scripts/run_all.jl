@@ -24,6 +24,21 @@ include("generate_sim_summary.jl")
 # SECTION 2: Varying CAT Bond Sizes
 # --------------------------------------------------------
 
+# --- Step 1: Run Each Model Once ---
+include("Benchmark_RN_Climate.jl")
+include("Benchmark_RA_Climate.jl")
+include("1P_PC_RN_Climate.jl")
+include("1P_PC_RA_Climate.jl")
+include("2P_PC_RN_Climate.jl")
+include("2P_PC_RA_Climate.jl")
+include("CAT_RN_Climate.jl")
+include("CAT_RA_Climate.jl")
+
+# --- Step 2: Generate Welfare Gain Summary ---
+include("welfare_gains_Climate.jl")
+
+# --- Step 3: Generate Typst Simulation Tables ---
+include("generate_sim_summary_Climate.jl")
 
 # --------------------------------------------------------
 # SECTION 3: Intensified Climate Impact

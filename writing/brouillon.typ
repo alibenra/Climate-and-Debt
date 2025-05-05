@@ -13,7 +13,7 @@
 )
 
 
-= Simulation Results
+= Simulation Results - Baseline
 
 This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
 
@@ -27,6 +27,27 @@ This document summarizes the main simulated moments and welfare comparisons acro
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
 #include "../output/welfare_gains.typ"
+
+= Simulation Results - Climate Change
+
+== Risk-Neutral Models
+#include "../output/group_sim_RN_climate.typ"
+
+== Risk-Averse Models
+#include "../output/group_sim_RA_climate.typ"
+== Welfare Gains
+
+Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+
+#include "../output/welfare_gains_climate.typ"
+
+= Simulation Results - Climate Change
+
+
+
+
+
+
 
 === Simulation Summary: bench_RA
 

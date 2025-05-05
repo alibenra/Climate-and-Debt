@@ -11,8 +11,8 @@ global_beta = 0.865 # Target Debt/GDP - perfect for seed 226 is 0.865 for alpha0
 global_wc = 0.78 # Target Mean Spread - perfect for seed 226 is 0.78 for alpha0=11 and alpha1=-141
 
 function get_country_params(country::String)
-    cc_int = 1 # Equals to 1 when there is hurricane risk
-    cc_freq = 1 # Equals to 1 when there is hurrican risk
+    cc_int = 1.485 # Increase in the damages of disastrous climate events
+    cc_freq = 1.292 # Increase in the frequency of disastrous climate events
     country == "Jamaica"
     return (
         sigma_ey = 0.026,
@@ -665,7 +665,7 @@ function main_country_RA(country::String)
     @printf("GDP Mean Store: %f\n", gdp_mean_store)
 
     # Save simulation moments (using JLD2, for example)
-    @save "output/sim_bench_RA.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
+    @save "output/sim_bench_RA_climate.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
 
     return (
         country = country,
@@ -738,6 +738,6 @@ display(plt)
 V_g_bench_RA = result_bench_RA.V_g_mean
 gamma_c = result_bench_RA.gamma_c
 
-@save "output/Vg_sim_bench_RA.jld2" V_g_bench_RA gamma_c
+@save "output/Vg_sim_bench_RA_climate.jld2" V_g_bench_RA gamma_c
 
 
