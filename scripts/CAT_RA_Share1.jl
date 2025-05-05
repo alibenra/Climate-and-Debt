@@ -23,7 +23,7 @@ function get_country_params(country::String)
         sigma_eh = 0.02,
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
-        f_CAT = 0.55,
+        f_CAT = 0.0155,
         Π_cat = 0.0571,
         share = 0.0
         )
@@ -177,14 +177,15 @@ function compute_autarky_utility(h_vec_2sh, y_vec_2sh, wc_par_asymm, gdp_mean, g
 end
 # This autarky utility calculation is then used within the value function iteration (VFI) step. 
 
+
 # ========================================================
-# 3. Default Iteration and Value Function Iteration with a Pricing Kernel
+# 3. Default Iteration and Value Function Iteration
 # ========================================================
 # Note: Added parameter λ to the function signature.
-function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_r,
+function default_iteration_CAT_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_r,
     gamma_c, ev_rho, ev_rho_def, eulgam,
     N_y, N_h, N_x, N_b_g, qrf_lt, qrf_vec, gdp_mean, P_x,
-    y_vec_2sh, h_vec_2sh, util_aut, λ,
+    y_vec_2sh, h_vec_2sh, util_aut, λ, f_CAT, Π_cat,
     damp_v=0.8, damp_q=0.8, maxiter_v=300, maxiter_q=600, tol_v=1e-3, tol_q=1e-6)
 
     #########################################################################
@@ -225,6 +226,15 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
     y_state_grid = reshape(repeat(y_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g) # This array aligns the income (or output) grid with the decision dimensions.
     h_state_grid = reshape(repeat(h_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g) # This array does for hurricane shocks what y_state_grid does for income.
     
+    # 1) a vector xi_vec of length Nₓ that is 1 when h shock occurs, 0 otherwise
+    xi_vec = repeat([0.0; ones(N_h-1)], N_y)
+    # 2) lift into a 3‑D array, same dims as b_state_grid
+    xi_state = reshape(repeat(xi_vec, inner=(1,N_b_g,N_b_g)), N_x, N_b_g, N_b_g)
+    # 3) compute CAT‐notional array
+    B_cat_state = f_CAT .* b_state_grid
+    B_cat_mat = f_CAT .* (xi_vec * b_g_vec)       
+    Yaut = h_vec_2sh .* y_vec_2sh 
+
     #########################################################################
     # 2. Initialization of Value Functions and Bond Prices
     #########################################################################
@@ -232,7 +242,7 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
     q_g = fill(qrf_lt, N_x, N_b_g)
     # Initial guesses for the value functions for the borrower.
     v_guess = zeros(N_x, N_b_g) # value under repayment
-    v_bad_guess = zeros(N_x) # value under default
+    v_bad_guess    = zeros(N_x, N_b_g) # value under default
     # Placeholder for the default probabilities on the state grid.
     def_new = fill(NaN, N_x, N_b_g)
     # Placeholder for the probability-weighted bond price function (used later for pricing).
@@ -249,8 +259,8 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
     # y_vec_2sh is passed to default_iteration! and is assumed to be a vector of income levels (length N_x).
     log_y_eff = log.(y_vec_2sh) + log.(h_vec_2sh)
     eta2 = sigma_ey^2        # variance of the income shock (sigma_ey is from the country parameters)
-    alpha0 = 11            # as specified
-    alpha1 = -141        # as specified
+    alpha0 = 11.0             # as specified
+    alpha1 = -141.0       # as specified
     r_star = mu_r            # risk-free rate (mu_r is passed as a parameter)
     N_x_val = length(y_vec_2sh)
     M_mat = zeros(N_x_val, N_x_val)
@@ -287,6 +297,7 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
             # For the “bad” outcome (default), extract value at debt state closest to zero.
             v_badgood_guess = v_guess[:, i_b_g_zero[2]] # This is the value of repaying after having defaulted, so having debt equal to 0
             e_v_badgood_guess = P_x * v_badgood_guess # This is EVc when the government has defaulted
+            e_v_badgood_guess = repeat(e_v_badgood_guess, 1, N_b_g)
             e_v_bad_guess = P_x * v_bad_guess # This is EVd when the government has defaulted
 
             # Prepare the bond price grid for the decision problem. The 3D are: income state, next debt choice, current debt state
@@ -298,7 +309,7 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
             # Compute the revenue from borrowing/revenue adjustment. In the LT Bond framework
             borr_rev_choice_3grid = q_g_3d .* (b_choice_3d .- (1 - delta) .* b_state_grid)
             # Compute consumption under each candidate choice. # Consumption under repayment
-            cons_choice = h_state_grid .* y_state_grid .- b_state_grid .+ borr_rev_choice_3grid
+            cons_choice = h_state_grid .* y_state_grid .- b_state_grid .+ borr_rev_choice_3grid .+ xi_state .* B_cat_state .- (1 .- xi_state) .* (Π_cat .* B_cat_state)
             # Ensure that consumption is positive.
             cons_choice .= map(x -> x < eps() ? eps() : x, cons_choice)
             # Compute period utility (CRRA) from consumption.
@@ -330,17 +341,19 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
             temp_exp = dropdims(temp_exp, dims=3)
             v_good_guess_new = eulgam * ev_rho .+ v_good_guess_noev .+ ev_rho .* log.(temp_exp)
             # Compute the Value in the event of choice of default (autarky) with lambda probability of re-entry
+            CatFlow = xi_vec * (f_CAT .* b_g_vec) .- (1 .- xi_vec) * (Π_cat .* f_CAT .* b_g_vec)
+            c_aut = Yaut * ones(1,N_b_g) .+ CatFlow
+            c_aut .= clamp.(c_aut, eps(), wc_par_asymm*gdp_mean)
+            util_aut    = (1/(1-gamma_c)) .* c_aut.^(1-gamma_c)
             v_bad_guess_new = util_aut .+ beta .* (λ .* e_v_badgood_guess .+ (1 - λ) .* e_v_bad_guess)
 
             # Update default probabilities using a logistic type transformation.
-            temp_bad = repeat(v_bad_guess_new, 1, N_b_g)
-            def_new = 1 .- (exp.(ev_rho_def .* (temp_bad .- v_good_guess_new)) .+ 1).^-1
+            def_new = 1 .- (exp.(ev_rho_def .* (v_bad_guess_new .- v_good_guess_new)) .+ 1).^-1
 
             # Alternative update for the value function incorporating both branches.
-            temp_bad2 = repeat(v_bad_guess_new, 1, N_b_g)
-            v_guess_new = eulgam * ev_rho .+ v_good_guess_new .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (-v_good_guess_new .+ temp_bad2)))
+            v_guess_new = eulgam * ev_rho .+ v_good_guess_new .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (-v_good_guess_new .+ v_bad_guess_new)))
             # In states where default is almost certain, choose the alternative flip update.
-            v_guess_new_flip = eulgam * ev_rho .+ temp_bad2 .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (v_good_guess_new .- temp_bad2)))
+            v_guess_new_flip = eulgam * ev_rho .+ v_bad_guess_new .+ ev_rho .* log.(1 .+ exp.((1 / ev_rho) .* (v_good_guess_new .- v_bad_guess_new)))
             for idx in eachindex(def_new)
                 if def_new[idx] > 0.999
                     v_guess_new[idx] = v_guess_new_flip[idx]
@@ -354,7 +367,7 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
             # Dampen updates to ensure convergence.
             v_guess = damp_v .* v_guess_new .+ (1 - damp_v) .* v_old
             v_bad_guess = damp_v .* v_bad_guess_new .+ (1 - damp_v) .* v_bad_old
-
+        
             diff_v = maximum(abs.(v_guess_new .- v_old))
             @printf("Inner iteration %d: diff_v = %.4e\n", iter_v, diff_v)
             iter_v += 1
@@ -405,6 +418,7 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
         # Now update the bond price by multiplying our risk-adjusted expectation by penalty_new.
         q_g_new = penalty_new .* ((1 .- e_def_new) .+ (1 - delta) .* e_deflong_new)
 
+
         q_g_new = max.(0, q_g_new)
         # For debt levels where borrowing is nonpositive, reset bond prices to the risk-free long-term price.
         for j in 1:size(q_g_new, 2)
@@ -435,8 +449,6 @@ function default_iteration_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_
 
     return (b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, def_pf, prob_choice)
 end
-
-
 
 # ========================================================
 # 4. Simulation of the Markov Chain and Moments
@@ -531,7 +543,7 @@ end
 # 5. MAIN FUNCTION: Run All Steps for a Single Country
 # ========================================================
 
-function main_country_RA(country::String)
+function main_country_CAT_RA(country::String)
     # -- Global Parameter Setup --
     N_y = 7
     N_h = 3
@@ -553,6 +565,8 @@ function main_country_RA(country::String)
     cc_int        = 1  # As defined in get_country_params
     mean_h        = country_params.mean_h
     p_hu          = country_params.p_hu
+    f_CAT         = country_params.f_CAT
+    Π_cat         = country_params.Π_cat
 
     # r-process parameter:
     mu_r = 0.0451
@@ -600,11 +614,11 @@ function main_country_RA(country::String)
     # 2. Default Iteration: Value and Policy Functions
     # ------------------------------------------------------
     b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, def_pf, prob_choice =
-        default_iteration_RA!(
+        default_iteration_CAT_RA!(
             sigma_ey = sigma_ey, rho_y = rho_y, beta = beta, wc_par_asymm = wc_par_asymm, delta = delta, mu_r = mu_r,
             gamma_c = gamma_c, ev_rho = ev_rho, ev_rho_def = ev_rho_def, eulgam = eulgam,
             N_y = N_y, N_h = N_h, N_x = N_x, N_b_g = N_b_g, qrf_lt = qrf_lt, qrf_vec = qrf_vec, gdp_mean = gdp_mean, P_x = P_x,
-            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ,
+            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ, f_CAT = f_CAT, Π_cat = Π_cat,
             damp_v = damp_v, damp_q = damp_q, maxiter_v = maxiter_v, maxiter_q = maxiter_q, tol_v = tol_v, tol_q = tol_q
         )
 
@@ -624,7 +638,12 @@ function main_country_RA(country::String)
     nx_sim = -q_g_mean .* (b_g_sim_curr .- (1 - delta) .* b_g_sim1) .+ b_g_sim1
     nx_sim = replace(nx_sim, NaN => 0.0)
     c_sim1 = y_sim .* h_sim .- nx_sim
-    c_sim = ifelse.(isnan.(c_sim1), wc_par_asymm * gdp_mean, c_sim1)
+    xi_sim   = (h_sim .< 1)
+    B_cat_sim= f_CAT .* b_g_mean
+    c_sim    = c_sim1
+         .+ xi_sim .* B_cat_sim         # CAT payout
+         .- (1 .- xi_sim) .* (Π_cat .* B_cat_sim)  
+    c_sim    = ifelse.(isnan.(c_sim), wc_par_asymm * gdp_mean, c_sim)
     cons_sim = c_sim
 
     meanBY_sim = mean(skipmissing(B_g_sim[spread_sim .< 1e4]))
@@ -665,16 +684,7 @@ function main_country_RA(country::String)
     @printf("GDP Mean Store: %f\n", gdp_mean_store)
 
     # Save simulation moments (using JLD2, for example)
-    @save "output/sim_bench_RA.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
-
-    gdp_q25 = quantile(gdp_sim, 0.25)
-    gdp_q75 = quantile(gdp_sim, 0.75)
-    cond_prob_low = mean(h_sim[i] < 1 for i in 1:length(h_sim) if gdp_sim[i] < gdp_q25)
-    cond_prob_mid  = mean(h_sim[i] < 1 for i in eachindex(h_sim) if gdp_q25 ≤ gdp_sim[i] ≤ gdp_q75)
-    cond_prob_high = mean(h_sim[i] < 1 for i in eachindex(h_sim) if gdp_sim[i] > gdp_q75)
-    @printf("P(hurricane | GDP < Q25)     = %.4f\n", cond_prob_low)
-    @printf("P(hurricane | Q25 ≤ GDP ≤ Q75) = %.4f\n", cond_prob_mid)
-    @printf("P(hurricane | GDP > Q75)     = %.4f\n", cond_prob_high)    
+    @save "output/sim_CAT_RA_share1.jld2" meanBY_sim meanBY_sim_market meanspread_sim medianspread_sim stdspread_sim meanspread_hurr_sim medianspread_hurr_sim gdp_g_h_sim spread_g_h_sim b_g_mean i_x_sim cons_sim spread_sim def_freq_sim hur_freq_sim gdp_mean_store V_g_mean
 
     return (
         country = country,
@@ -688,7 +698,6 @@ function main_country_RA(country::String)
         # Added these fields for plotting purposes:
         b_g_vec = b_g_vec,
         q_g = q_g,
-        v_guess = v_guess,
         gdp_vec = vec(gdp_vec),
         V_g_mean = V_g_mean,
         gamma_c = gamma_c 
@@ -732,21 +741,18 @@ end
 # =============================================================================================
 # 7. Running the model, outputting the price schedule graph, and saving simulation results
 # =============================================================================================
-
 # Running the model and its simulation
 @time begin
-    result_bench_RA = main_country_RA("Jamaica")
+    result_CAT_RA = main_country_CAT_RA("Jamaica")
 end
 
 # Call the plotting function using the outputs from main_country:
-plt = plot_bond_price_schedule_with_gdp(result_bench_RA.b_g_vec, result_bench_RA.q_g, result_bench_RA.gdp_vec, result_bench_RA.meanDebtGDP)
+plt = plot_bond_price_schedule_with_gdp(result_CAT_RA.b_g_vec, result_CAT_RA.q_g, result_CAT_RA.gdp_vec, result_CAT_RA.meanDebtGDP)
 display(plt)
 
-
 # Saving model simulations results
-V_g_bench_RA = result_bench_RA.V_g_mean
-gamma_c = result_bench_RA.gamma_c
+V_g_CAT_RA = result_CAT_RA.V_g_mean
+gamma_c = result_CAT_RA.gamma_c
 
-@save "output/Vg_sim_bench_RA.jld2" V_g_bench_RA gamma_c
-
+@save "output/Vg_sim_CAT_RA_share1.jld2" V_g_CAT_RA gamma_c
 

@@ -35,15 +35,25 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 
 == Risk-Averse Models
 #include "../output/group_sim_RA_climate.typ"
+
 == Welfare Gains
 
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
 #include "../output/welfare_gains_climate.typ"
 
-= Simulation Results - Climate Change
+= Simulation Results - CAT Shares
+== Risk-Neutral Models
+#include "../output/group_sim_RN_CAT_Share.typ"
 
+== Risk-Averse Models
+#include "../output/group_sim_RA_CAT_Share.typ"
 
+== Welfare Gains
+
+Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+
+#include "../output/welfare_gains_CAT_Share.typ"
 
 
 
