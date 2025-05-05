@@ -1,5 +1,9 @@
 cd(normpath(joinpath(@__DIR__, "..")))
 
+# --------------------------------------------------------
+# SECTION 1: Baseline Parameters
+# --------------------------------------------------------
+
 # --- Step 1: Run Each Model Once ---
 include("Benchmark_RN.jl")
 include("Benchmark_RA.jl")
@@ -15,3 +19,15 @@ include("Welfare_gains.jl")
 
 # --- Step 3: Generate Typst Simulation Tables ---
 include("generate_sim_summary.jl")
+
+# --------------------------------------------------------
+# SECTION 2: Varying CAT Bond Sizes
+# --------------------------------------------------------
+
+
+# --------------------------------------------------------
+# SECTION 3: Intensified Climate Impact
+# --------------------------------------------------------
+
+
+
