@@ -24,8 +24,7 @@ function get_country_params(country::String)
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
         f_CAT = 0.55,
-        Π_cat = 0.0571,
-        share = 0.0
+        Π_cat = 0.0571
         )
 end
 
@@ -165,7 +164,7 @@ end
 function default_iteration_1P_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_r,
     gamma_c, ev_rho, ev_rho_def, eulgam,
     N_y, N_h, N_x, N_b_g, qrf_lt, qrf_vec, gdp_mean, P_x,
-    y_vec_2sh, h_vec_2sh, util_aut, λ, share,
+    y_vec_2sh, h_vec_2sh, util_aut, λ,
     damp_v=0.8, damp_q=0.8, maxiter_v=300, maxiter_q=600, tol_v=1e-3, tol_q=1e-6)
 
     #########################################################################
@@ -297,13 +296,12 @@ function default_iteration_1P_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
             # --- DEBT RELIEF BRANCH ---
             # Compute alternative borrowing revenue with relief adjustments.
             borr_rev_choice_3grid_rel = permutedims(repeat(q_g, 1, 1, N_b_g), (1, 3, 2)) .* 
-                ( permutedims(repeat(b_choice_2grid, 1, 1, N_b_g), (1, 3, 2)) .- 
-                  share .* (1 - delta) .* b_state_grid .- (1 - share) .* (1 + mu_r) .* b_state_grid )
+                ( permutedims(repeat(b_choice_2grid, 1, 1, N_b_g), (1, 3, 2)) .- (1 + mu_r) .* b_state_grid )
             # The idea is that, in a hurricane state (where dummy_rel is 1), the terms of the borrowing contract change so 
             # that the government pays either a risk-free rate or a different premium based on mu_r. The “share” parameter 
             # determines whether the relief branch applies completely (if share = 0) or partially.
             
-            cons_rel_choice = h_state_grid .* y_state_grid .- share .* b_state_grid .+ borr_rev_choice_3grid_rel
+            cons_rel_choice = h_state_grid .* y_state_grid .+ borr_rev_choice_3grid_rel
             cons_rel_choice .= map(x -> x < eps() ? eps() : x, cons_rel_choice)
             util_rel_choice = (1 / (1 - gamma_c)) .* cons_rel_choice.^(1 - gamma_c)
             # Consumption under debt relief is defined analogously—with the relief adjustment embedded in the borrowing revenue
@@ -549,7 +547,6 @@ function main_country_1P_RN(country::String)
     cc_int        = 1
     mean_h        = country_params.mean_h
     p_hu          = country_params.p_hu
-    share         = country_params.share
 
     mu_r = 0.0451
     gamma_c = 2
@@ -587,7 +584,7 @@ function main_country_1P_RN(country::String)
             sigma_ey = sigma_ey, rho_y = rho_y, beta = beta, wc_par_asymm = wc_par_asymm, delta = delta, mu_r = mu_r,
             gamma_c = gamma_c, ev_rho = ev_rho, ev_rho_def = ev_rho_def, eulgam = eulgam,
             N_y = N_y, N_h = N_h, N_x = N_x, N_b_g = N_b_g, qrf_lt = qrf_lt, qrf_vec = qrf_vec, gdp_mean = gdp_mean, P_x = P_x,
-            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ, share = share,
+            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ,
             damp_v = damp_v, damp_q = damp_q, maxiter_v = maxiter_v, maxiter_q = maxiter_q, tol_v = tol_v, tol_q = tol_q
         )
     

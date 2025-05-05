@@ -24,8 +24,7 @@ function get_country_params(country::String)
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
         f_CAT = 0.0155,
-        Π_cat = 0.0571,
-        share = 0.0
+        Π_cat = 0.0571
         )
 end
 

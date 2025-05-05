@@ -24,8 +24,7 @@ function get_country_params(country::String)
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
         f_CAT = 0.55,
-        Π_cat = 0.0571,
-        share = 0.0
+        Π_cat = 0.0571
         )
 end
 
@@ -185,72 +184,57 @@ end
 function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, mu_r,
     gamma_c, ev_rho, ev_rho_def, eulgam,
     N_y, N_h, N_x, N_b_g, qrf_lt, qrf_vec, gdp_mean, P_x,
-    y_vec_2sh, h_vec_2sh, util_aut, λ, share,
+    y_vec_2sh, h_vec_2sh, util_aut, λ,
     damp_v=0.8, damp_q=0.8, maxiter_v=300, maxiter_q=600, tol_v=1e-3, tol_q=1e-6)
 
     #########################################################################
     # 1. Debt Grid Construction and State-Space Setup
     #########################################################################
-    single_space = false
-    b_g_min = -0.05
-    b_g_max = 1.18
-    if single_space
-        b_g_vec = collect(range(b_g_min, stop=b_g_max, length=N_b_g))
+    b_g_min, b_g_max = -0.05, 1.18
+    b_g_mid = 0.3
+    N_b_g_mid = floor(Int, 0.85 * N_b_g)
+    b_g_vec = if N_b_g_mid > 0 && N_b_g_mid < N_b_g
+        y_1 = collect(range(b_g_min, stop=b_g_mid, length=N_b_g_mid))
+        y_2 = collect(range(b_g_mid + (b_g_max - b_g_mid) / (N_b_g - N_b_g_mid), stop=b_g_max, length=N_b_g - N_b_g_mid))
+        vcat(y_1, y_2)
     else
-        b_g_mid = 0.3
-        N_b_g_mid = floor(Int, 0.85 * N_b_g)
-        low_bound = b_g_min
-        mid_point = b_g_mid
-        upp_bound = b_g_max
-        N_1 = N_b_g_mid
-        N_tot = N_b_g
-        if N_1 > 0 && N_1 < N_tot && ((low_bound < mid_point && mid_point < upp_bound) || (low_bound > mid_point && mid_point > upp_bound))
-            y_1 = collect(range(low_bound, stop=mid_point, length=N_1))
-            y_2 = collect(range(mid_point + (upp_bound - mid_point) / (N_tot - N_1), stop=b_g_max, length=N_tot - N_1))
-            b_g_vec = vcat(y_1, y_2)
-        else
-            b_g_vec = collect(range(low_bound, stop=b_g_max, length=N_tot))
-        end
+        collect(range(b_g_min, stop=b_g_max, length=N_b_g))
     end
-    b_g_vec = reshape(b_g_vec, 1, length(b_g_vec))
+    b_g_vec = reshape(b_g_vec, 1, N_b_g)
     i_b_g_zero = argmin(abs.(b_g_vec))
     b_g_vec[i_b_g_zero] = 0.0
 
-    b_state_grid = reshape(repeat(b_g_vec, outer=(N_x, 1, N_b_g)), N_x, N_b_g, N_b_g)
-    b_choice_2grid = reshape(repeat(b_g_vec, outer=(N_x, 1)), N_x, N_b_g)
-    y_state_grid = reshape(repeat(y_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
-    h_state_grid = reshape(repeat(h_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
+    v_guess = zeros(N_x, N_b_g)
+    v_bad_guess = zeros(N_x)
+    v_PC2_guess = zeros(N_x, N_b_g)
+    v_rel_PC1_guess = zeros(N_x, N_b_g)
+
+    q_g = fill(qrf_lt, N_x, N_b_g)
+    def_std = fill(NaN, N_x, N_b_g)
+    def_PC2 = fill(NaN, N_x, N_b_g)
+    def_PC1 = fill(NaN, N_x, N_b_g)
+    def_new = fill(NaN, N_x, N_b_g)
+
+    q_g_pf = zeros(N_x, N_b_g)
+    q_g_PC2_pf = zeros(N_x, N_b_g)
+    q_g_PC1_pf = zeros(N_x, N_b_g)
+
+    prob_choice = zeros(N_x, N_b_g, N_b_g)
+    prob_choice_PC2 = zeros(N_x, N_b_g, N_b_g)
+    prob_choice_PC1 = zeros(N_x, N_b_g, N_b_g)
     
     #########################################################################
     # 2. Debt Relief Setup
     #########################################################################
     dummy_rel_vec = map(h -> h < 1.0 ? 1 : 0, h_vec_2sh)
     dummy_rel = repeat(reshape(dummy_rel_vec, N_x, 1), 1, N_b_g)
-    # << NEW >> Initialize separate relief branch value functions:
-    v_rel_guess = zeros(N_x, N_b_g)
 
     #########################################################################
     # 3. Initialization of Value Functions and Bond Prices
     #########################################################################
-    q_g = fill(qrf_lt, N_x, N_b_g)
-
-    v_guess = zeros(N_x, N_b_g)
-    v_bad_guess = zeros(N_x)
-    # In the inner loop we compute default probabilities separately for standard and relief.
-    def_std = fill(NaN, N_x, N_b_g)
-    def_rel = fill(NaN, N_x, N_b_g)
-    # We then merge: def_only_pf (standard) and rel_only_pf (relief).
-    # For now, def_new (final) will be computed as def_std + def_rel.
-    def_new = fill(NaN, N_x, N_b_g)
-    
-    q_g_pf = zeros(N_x, N_b_g)
-    q_g_rel_pf = zeros(N_x, N_b_g)
-
     diff_q = 7.0
     iter_q = 1
     log_diff_q = Float64[]
-    prob_choice = zeros(N_x, N_b_g, N_b_g)
-    prob_choice_rel = zeros(N_x, N_b_g, N_b_g)
 
     # --- RISK-ADJUSTED PRICING KERNEL ---
     # Form an effective state from income and hurricane shock.
@@ -273,11 +257,10 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
     # 4. Outer Loop: Bond Price Update (Pricing Outer Loop)
     #########################################################################
     while diff_q > tol_q && iter_q < maxiter_q
-        # --- Begin Inner Loop: Value Function Iteration (VFI) Update ---
         diff_v = 7.0
         iter_v = 1
         while diff_v > tol_v && iter_v < maxiter_v
-            # --- Standard (Risk-Averse) Branch ---
+            # Standard branch
             e_v_guess = P_x * v_guess
             temp = repeat(e_v_guess, 1, 1, N_b_g)
             e_v_guess_3grid = permutedims(temp, (1, 3, 2))
@@ -287,8 +270,12 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
 
             temp_qg = repeat(q_g, 1, 1, N_b_g)
             q_g_3d = permutedims(temp_qg, (1, 3, 2))
-            temp_bchoice = repeat(b_choice_2grid, 1, 1, N_b_g)
-            b_choice_3d = permutedims(temp_bchoice, (1, 3, 2))
+            temp_bchoice = repeat(b_g_vec, N_x, N_b_g)
+            b_choice_3d = permutedims(reshape(temp_bchoice, N_x, N_b_g, N_b_g), (1, 3, 2))
+            b_state_grid = permutedims(b_choice_3d, (1, 3, 2))
+            y_state_grid = reshape(repeat(y_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
+            h_state_grid = reshape(repeat(h_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
+
             borr_rev_choice_3grid = q_g_3d .* (b_choice_3d .- (1 - delta) .* b_state_grid)
             cons_choice = h_state_grid .* y_state_grid .- b_state_grid .+ borr_rev_choice_3grid
             cons_choice .= map(x -> x < eps() ? eps() : x, cons_choice)
@@ -297,20 +284,18 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
 
             N1, N2, N3 = size(borrower_maximand)
             v_good_guess_noev = Array{Float64}(undef, N1, N2)
-            i_b_max_new_noev = Array{Int}(undef, N1, N2)
             for i in 1:N1, j in 1:N2
                 idx = argmax(borrower_maximand[i, j, :])
-                i_b_max_new_noev[i, j] = idx
                 v_good_guess_noev[i, j] = borrower_maximand[i, j, idx]
             end
 
             temp_max = repeat(v_good_guess_noev, 1, 1, N_b_g)
-            prob_choice = exp.((borrower_maximand .- temp_max) / ev_rho) ./
-                           sum(exp.((borrower_maximand .- temp_max) / ev_rho), dims=3)
+            prob_choice = exp.((borrower_maximand .- temp_max) / ev_rho) ./ sum(exp.((borrower_maximand .- temp_max) / ev_rho), dims=3)
             norma_explog = repeat(v_good_guess_noev, 1, 1, N_b_g)
             temp_exp = sum(exp.((1 / ev_rho) .* (borrower_maximand .- norma_explog)), dims=3)
             temp_exp = dropdims(temp_exp, dims=3)
             v_good_guess_new = eulgam * ev_rho .+ v_good_guess_noev .+ ev_rho .* log.(temp_exp)
+
             v_bad_guess_new = util_aut .+ beta .* (λ .* e_v_badgood_guess .+ (1 - λ) .* e_v_bad_guess)
             temp_bad = repeat(v_bad_guess_new, 1, N_b_g)
             def_std = 1 .- (exp.(ev_rho_def .* (temp_bad .- v_good_guess_new)) .+ 1).^-1
@@ -324,82 +309,84 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
                 end
             end
 
-            # --- DEBT RELIEF BRANCH ---
-            # Use the separate relief value function in computing the expected value.
-            e_v_rel_guess = P_x * v_rel_guess  # <--- Modified!
-            temp_rel = repeat(e_v_rel_guess, 1, 1, N_b_g)
-            e_v_rel_guess_3grid = permutedims(temp_rel, (1, 3, 2))
-            cons_rel_choice = h_state_grid .* y_state_grid .- share .* b_state_grid .+ 
-                               permutedims(repeat(q_g, 1, 1, N_b_g), (1, 3, 2)).*(
-                                 permutedims(repeat(b_choice_2grid, 1, 1, N_b_g), (1, 3, 2)) - 
-                                 share .* (1 - delta) .* b_state_grid - (1 - share) .* (1 + mu_r) .* b_state_grid)
-            cons_rel_choice .= map(x -> x < eps() ? eps() : x, cons_rel_choice)
-            util_rel_choice = (1 / (1 - gamma_c)) .* cons_rel_choice.^(1 - gamma_c)
-            borrower_maximand_rel = util_rel_choice .+ beta .* e_v_rel_guess_3grid
+            # PC2 branch (first period clause relief)
+            e_v_PC1 = P_x * v_rel_PC1_guess  # used in PC2 to anticipate PC1
+            temp_PC1 = repeat(e_v_PC1, 1, 1, N_b_g)
+            e_v_PC1_3grid = permutedims(temp_PC1, (1, 3, 2))
+
+            cons_rel = h_state_grid .* y_state_grid .+ q_g_3d .* (b_choice_3d .- (1 + mu_r) .* b_state_grid)
+            cons_rel .= map(x -> x < eps() ? eps() : x, cons_rel)
+            util_rel = (1 / (1 - gamma_c)) .* cons_rel.^(1 - gamma_c)
+            borrower_maximand_rel = util_rel .+ beta .* e_v_PC1_3grid
 
             v_good_guess_noev_rel = Array{Float64}(undef, N1, N2)
-            i_b_max_new_noev_rel = Array{Int}(undef, N1, N2)
             for i in 1:N1, j in 1:N2
                 idx = argmax(borrower_maximand_rel[i, j, :])
-                i_b_max_new_noev_rel[i, j] = idx
                 v_good_guess_noev_rel[i, j] = borrower_maximand_rel[i, j, idx]
             end
 
             temp_max_rel = repeat(v_good_guess_noev_rel, 1, 1, N_b_g)
-            prob_choice_rel = exp.((borrower_maximand_rel .- temp_max_rel) / ev_rho) ./
-                              sum(exp.((borrower_maximand_rel .- temp_max_rel) / ev_rho), dims=3)
+            prob_choice_PC2 = exp.((borrower_maximand_rel .- temp_max_rel) / ev_rho) ./ sum(exp.((borrower_maximand_rel .- temp_max_rel) / ev_rho), dims=3)
             norma_explog_rel = repeat(v_good_guess_noev_rel, 1, 1, N_b_g)
             temp_exp_rel = sum(exp.((1 / ev_rho) .* (borrower_maximand_rel .- norma_explog_rel)), dims=3)
             temp_exp_rel = dropdims(temp_exp_rel, dims=3)
             v_good_guess_new_rel = eulgam * ev_rho .+ v_good_guess_noev_rel .+ ev_rho .* log.(temp_exp_rel)
+
             temp_bad_rel = repeat(v_bad_guess_new, 1, N_b_g)
-            def_rel = 1 .- (exp.(ev_rho_def .* (temp_bad_rel .- v_good_guess_new_rel)) .+ 1).^-1
+            def_PC2 = 1 .- (exp.(ev_rho_def .* (temp_bad_rel .- v_good_guess_new_rel)) .+ 1).^-1
             for idx in eachindex(dummy_rel)
                 if dummy_rel[idx] == 0
-                    def_rel[idx] = 0.0
+                    def_PC2[idx] = 0.0
                 end
             end
 
-            # << NEW >> Update the relief branch value function using its candidate value.
-            v_rel_guess = damp_v .* v_good_guess_new_rel + (1 - damp_v) .* v_rel_guess
+            v_PC2_guess = damp_v .* v_good_guess_new_rel + (1 - damp_v) .* v_PC2_guess
 
-            # Merge default probabilities:
-            def_new = def_std .+ def_rel
+            # PC1 branch (second period continuation of clause)
+            e_v_std = P_x * v_guess
+            temp_PC1_2 = repeat(e_v_std[:, :, 1], 1, 1, N_b_g)
+            e_v_PC1_3grid_2 = permutedims(temp_PC1_2, (1, 3, 2))
+            borrower_maximand_PC1 = util_rel .+ beta .* e_v_PC1_3grid_2
 
-            # Merge value functions: in states with dummy_rel==1, use the relief branch value.
-            v_guess_new_combined = (1 .- dummy_rel) .* v_guess_new + dummy_rel .* v_rel_guess
+            v_good_guess_noev_PC1 = Array{Float64}(undef, N1, N2)
+            for i in 1:N1, j in 1:N2
+                idx = argmax(borrower_maximand_PC1[i, j, :])
+                v_good_guess_noev_PC1[i, j] = borrower_maximand_PC1[i, j, idx]
+            end
+
+            temp_exp_PC1 = sum(exp.((1 / ev_rho) .* (borrower_maximand_PC1 .- repeat(v_good_guess_noev_PC1, 1, 1, N_b_g))), dims=3)
+            temp_exp_PC1 = dropdims(temp_exp_PC1, dims=3)
+            v_good_guess_new_PC1 = eulgam * ev_rho .+ v_good_guess_noev_PC1 .+ ev_rho .* log.(temp_exp_PC1)
+            v_rel_PC1_guess = damp_v .* v_good_guess_new_PC1 + (1 - damp_v) .* v_rel_PC1_guess
+
+            def_PC1 = 1 .- (exp.(ev_rho_def .* (temp_bad_rel .- v_good_guess_new_PC1)) .+ 1).^-1
+            def_new = def_std .+ def_PC2 .+ def_PC1
+
+            v_guess_new_combined = (1 .- dummy_rel) .* v_guess_new + dummy_rel .* v_PC2_guess
             v_guess_new = v_guess_new_combined
 
-            # --- End Inner Loop: Update Value Function Guesses ---
             v_old = copy(v_guess)
             v_bad_old = copy(v_bad_guess)
-
             v_guess = damp_v .* v_guess_new .+ (1 - damp_v) .* v_old
             v_bad_guess = damp_v .* v_bad_guess_new .+ (1 - damp_v) .* v_bad_old
-            
+
             diff_v = maximum(abs.(v_guess_new .- v_old))
             @printf("Inner iteration %d: diff_v = %.4e\n", iter_v, diff_v)
             iter_v += 1
-        end  # End inner loop
-        
-        @printf("After inner loop: diff_v = %.4e, iter_v = %d\n", diff_v, iter_v)
+        end
         
         #########################################################################
         # 4B. Outer Loop: Bond Price Update (Replicating MATLAB)
         #########################################################################
         # For pricing, first store copies of default probabilities before merging.
-        def_only_pf = copy(def_std)    # standard default probability
-        rel_only_pf = copy(def_rel)     # relief default probability
-        
+        def_only_pf = copy(def_std)
+        rel_only_pf = copy(def_PC2)
         q_g_pf_old = copy(q_g_pf)
-        
-        q_g_pf = fill(NaN, N_x, N_b_g)
-        q_g_rel_pf = fill(NaN, N_x, N_b_g)
-        
         for i_x in 1:N_x
             for i_b in 1:N_b_g
-                q_g_pf[i_x,i_b] = sum(q_g[i_x, :] .* vec(prob_choice[i_x,i_b,:]))
-                q_g_rel_pf[i_x,i_b] = sum(q_g[i_x, :] .* vec(prob_choice_rel[i_x,i_b,:]))
+                q_g_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice[i_x, i_b, :]))
+                q_g_PC2_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice_PC2[i_x, i_b, :]))
+                q_g_PC1_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice_PC1[i_x, i_b, :]))
             end
         end
 
@@ -411,7 +398,7 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
         for i in 1:N_x
             for k in 1:N_b_g
                 term = ((1 .- def_only_pf[:, k]) .* (1 .- rel_only_pf[:, k]) .* (1 .+ (1 - delta) .* q_g_pf_zeros[:, k]) .+
-                        (1 .- def_only_pf[:, k]) .* rel_only_pf[:, k] .* ((share .* (1 .+ (1 - delta) .* q_g_rel_pf[:, k])) .+ ((1 - share) .* (1 + mu_r) .* q_g_rel_pf[:, k])))
+                        (1 .- def_only_pf[:, k]) .* rel_only_pf[:, k] .* ((1 + mu_r) .* q_g_PC2_pf[:, k]))
                 e_defrel_adj[i,k] = dot(P_x[i, :] .* M_mat[i, :], term)
             end
         end
@@ -461,6 +448,7 @@ function default_iteration_2P_RA!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
 
     return (b_g_vec, q_g, q_g_pf, v_guess, v_bad_guess, def_pf, prob_choice)
 end
+
 # ========================================================
 # 4. Simulation of the Markov Chain and Moments
 # ========================================================
@@ -574,7 +562,6 @@ function main_country_2P_RA(country::String)
     cc_int        = 1
     mean_h        = country_params.mean_h
     p_hu          = country_params.p_hu
-    share         = country_params.share
 
     mu_r = 0.0451
     gamma_c = 2
@@ -612,7 +599,7 @@ function main_country_2P_RA(country::String)
             sigma_ey = sigma_ey, rho_y = rho_y, beta = beta, wc_par_asymm = wc_par_asymm, delta = delta, mu_r = mu_r,
             gamma_c = gamma_c, ev_rho = ev_rho, ev_rho_def = ev_rho_def, eulgam = eulgam,
             N_y = N_y, N_h = N_h, N_x = N_x, N_b_g = N_b_g, qrf_lt = qrf_lt, qrf_vec = qrf_vec, gdp_mean = gdp_mean, P_x = P_x,
-            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ, share = share,
+            y_vec_2sh = y_vec_2sh, h_vec_2sh = h_vec_2sh, util_aut = util_aut, λ = λ,
             damp_v = damp_v, damp_q = damp_q, maxiter_v = maxiter_v, maxiter_q = maxiter_q, tol_v = tol_v, tol_q = tol_q
         )
 
