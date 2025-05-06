@@ -25,11 +25,11 @@ function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i
           label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
           lw = 2)
 
-    savefig(plt, "graphs/$(filename).pdf")
+    savefig(plt, "graphs/$(filename).png")
 end
 
 
-function compare_bond_schedule(results::Dict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
+function comp_bond_schedule(results::Dict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
     if isempty(results)
         error("No results provided for comparison.")
     end
@@ -68,7 +68,7 @@ function compare_bond_schedule(results::Dict{String, <:Any}; filename::String, i
 
     plot!(plt[1], ylims = (0, 10))
     plot!(plt[2], ylims = (0, 10))
-    savefig(plt, "graphs/$(filename).pdf")
+    savefig(plt, "graphs/$(filename).png")
 end
 
 
@@ -114,7 +114,7 @@ function plot_cat_welfare(df::DataFrame; filename::String = "Welfare_vs_CAT")
         plot!(x, y, lw = 1, line = :solid)
         hline!([0], linestyle = :dot, color = :gray)
 
-        savefig(plt, "graphs/$(filename)_$mode.pdf")
+        savefig(plt, "graphs/$(filename)_$mode.png")
     end
 end
 

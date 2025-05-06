@@ -27,6 +27,17 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 
 #include "../output/welfare_gains.typ"
 
+#grid(
+  columns: 2,
+  gutter: 1em,
+
+  image("../graphs/BondSchedule_Benchmark_RN.png", width: 100%),
+  image("../graphs/BondSchedule_Benchmark_RA.png", width: 100%)
+)
+
+#image("../graphs/BS_Comparison_RN.png", width: 100%)
+#image("../graphs/BS_Comparison_RA.png", width: 100%)
+
 = Simulation Results - Climate Change
 
 == Risk-Neutral Models
@@ -41,6 +52,17 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 
 #include "../output/welfare_gains_climate.typ"
 
+#grid(
+  columns: 2,
+  gutter: 1em,
+
+  image("../graphs/BondSchedule_Benchmark_RN_Climate.png", width: 100%),
+  image("../graphs/BondSchedule_Benchmark_RA_Climate.png", width: 100%)
+)
+
+#image("../graphs/BS_Comparison_RN_Climate.png", width: 100%)
+#image("../graphs/BS_Comparison_RA_Climate.png", width: 100%)
+
 = Simulation Results - CAT Shares
 == Risk-Neutral Models
 #include "../output/group_sim_RN_CAT_Share.typ"
@@ -54,6 +76,16 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 
 #include "../output/welfare_gains_CAT_Share.typ"
 
+#image("../graphs/BS_CAT_Share_RN.png", width: 100%)
+#image("../graphs/BS_CAT_Share_RA.png", width: 100%)
+
+#grid(
+  columns: 2,
+  gutter: 1em,
+
+  image("../graphs/Welfare_vs_CAT_Share_RN.png", width: 100%),
+  image("../graphs/Welfare_vs_CAT_Share_RA.png", width: 100%)
+)
 
 == Calibration Results
 

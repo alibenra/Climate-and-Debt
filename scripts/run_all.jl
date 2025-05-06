@@ -40,7 +40,7 @@ instruments_RN = Dict(
     "CAT Bond RN" => result_CAT_RN
 )
 
-compare_bond_schedule(instruments_RN; filename="BS_Comparison_RN")
+comp_bond_schedule(instruments_RN; filename="BS_Comparison_RN")
 
 # --- Step 6: Bond Price Schedule Comparison - RA ---
 instruments_RA = Dict(
@@ -50,7 +50,7 @@ instruments_RA = Dict(
     "CAT Bond RA" => result_CAT_RA
 )
 
-compare_bond_schedule(instruments_RA; filename="BS_Comparison_RA")
+comp_bond_schedule(instruments_RA; filename="BS_Comparison_RA")
 # --------------------------------------------------------
 # SECTION 2: Intensified Climate Impact
 # --------------------------------------------------------
@@ -89,7 +89,7 @@ instruments_RN_climate = Dict(
     "CAT Bond RN Climate" => result_CAT_RN_climate
 )
 
-compare_bond_schedule(instruments_RN_climate; filename="BS_Comparison_RN_Climate")
+comp_bond_schedule(instruments_RN_climate; filename="BS_Comparison_RN_Climate")
 
 # --- Step 6: Bond Price Schedule Comparison - RA ---
 instruments_RA_climate = Dict(
@@ -99,7 +99,7 @@ instruments_RA_climate = Dict(
     "CAT Bond RA Climate" => result_CAT_RA_climate
 )
 
-compare_bond_schedule(instruments_RA_climate; filename="BS_Comparison_RA_Climate")
+comp_bond_schedule(instruments_RA_climate; filename="BS_Comparison_RA_Climate")
 # --------------------------------------------------------
 # SECTION 3: Varying CAT Bond Sizes
 # --------------------------------------------------------
@@ -130,7 +130,7 @@ CAT_share_RN = Dict(
     "CAT Bond RN 100%" => result_CAT_RN_share100
 )
 
-compare_bond_schedule(CAT_share_RN; filename="BS_CAT_share_RN")
+comp_bond_schedule(CAT_share_RN; filename="BS_CAT_share_RN")
 
 # --- Step 6: Bond Price Schedule Comparison - RA ---
 CAT_share_RA = Dict(
@@ -140,7 +140,7 @@ CAT_share_RA = Dict(
     "CAT Bond RA 100%" => result_CAT_RA_share100
 )
 
-compare_bond_schedule(CAT_share_RA; filename="BS_CAT_share_RA")
+comp_bond_schedule(CAT_share_RA; filename="BS_CAT_share_RA")
 
 # --- Step 7: Welfare Gains Plot ---
 plot_cat_welfare(df_welfare; filename = "Welfare_vs_CAT_Share")
