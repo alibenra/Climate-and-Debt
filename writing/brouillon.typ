@@ -12,7 +12,6 @@
   date: auto
 )
 
-
 = Simulation Results - Baseline
 
 This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
@@ -56,7 +55,7 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 #include "../output/welfare_gains_CAT_Share.typ"
 
 
-
+== Calibration Results
 
 #show figure: set block(breakable: true)
 

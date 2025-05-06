@@ -742,16 +742,16 @@ end
 # =============================================================================================
 # Running the model and its simulation
 @time begin
-    result_CAT_RA = main_country_CAT_RA("Jamaica")
+    result_CAT_RA_share100 = main_country_CAT_RA("Jamaica")
 end
 
 # Call the plotting function using the outputs from main_country:
-plt = plot_bond_price_schedule_with_gdp(result_CAT_RA.b_g_vec, result_CAT_RA.q_g, result_CAT_RA.gdp_vec, result_CAT_RA.meanDebtGDP)
+plt = plot_bond_price_schedule_with_gdp(result_CAT_RA_share100.b_g_vec, result_CAT_RA_share100.q_g, result_CAT_RA_share100.gdp_vec, result_CAT_RA_share100.meanDebtGDP)
 display(plt)
 
 # Saving model simulations results
-V_g_CAT_RA = result_CAT_RA.V_g_mean
-gamma_c = result_CAT_RA.gamma_c
+V_g_CAT_RA_share100 = result_CAT_RA_share100.V_g_mean
+gamma_c = result_CAT_RA_share100.gamma_c
 
-@save "output/Vg_sim_CAT_RA_share100.jld2" V_g_CAT_RA gamma_c
+@save "output/Vg_sim_CAT_RA_share100.jld2" V_g_CAT_RA_share100 gamma_c
 

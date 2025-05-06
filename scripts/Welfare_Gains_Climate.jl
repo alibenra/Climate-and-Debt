@@ -20,7 +20,7 @@ end
 # Collect CEQ welfare results
 welfare_results = [
     compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN,
-                     "output/Vg_sim_1P_RN_climate.jld2",    :V_g_1P_RN;    label="1P_RN"),
+                     "output/Vg_sim_1P_RN_climate.jld2",    :V_g_1P_RN_climate;    label="1P_RN"),
 
     compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN,
                      "output/Vg_sim_2P_RN_climate.jld2",    :V_g_2P_RN;    label="2P_RN"),

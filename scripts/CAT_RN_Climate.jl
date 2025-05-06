@@ -680,15 +680,15 @@ end
 
 # Running the model and its simulation
 @time begin
-    result_CAT_RN = main_country_CAT_RN("Jamaica")
+    result_CAT_RN_climate = main_country_CAT_RN("Jamaica")
 end
 
 # Call the plotting function using the outputs from main_country:
-plt = plot_bond_price_schedule_with_gdp(result_CAT_RN.b_g_vec, result_CAT_RN.q_g, result_CAT_RN.gdp_vec, result_CAT_RN.meanDebtGDP)
+plt = plot_bond_price_schedule_with_gdp(result_CAT_RN_climate.b_g_vec, result_CAT_RN_climate.q_g, result_CAT_RN_climate.gdp_vec, result_CAT_RN_climate.meanDebtGDP)
 display(plt)
 
 # Saving model simulations results
-V_g_CAT_RN = result_CAT_RN.V_g_mean
-gamma_c = result_CAT_RN.gamma_c
+V_g_CAT_RN_climate = result_CAT_RN_climate.V_g_mean
+gamma_c = result_CAT_RN_climate.gamma_c
 
-@save "output/Vg_sim_CAT_RN_climate.jld2" V_g_CAT_RN gamma_c
+@save "output/Vg_sim_CAT_RN_climate.jld2" V_g_CAT_RN_climate gamma_c
