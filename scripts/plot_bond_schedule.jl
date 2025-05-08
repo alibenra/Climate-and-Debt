@@ -1,7 +1,7 @@
 # plot_bond_schedule.jl
 cd(normpath(joinpath(@__DIR__, "..")))
 
-using Plots, Measures, DataFrames
+using Plots, Measures, DataFrames, DataStructures
 
 function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i_high::Int = -1)
     b_g_vec = result.b_g_vec
@@ -18,18 +18,21 @@ function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i
     b_grid = vec(b_g_vec)
 
     plt = plot(b_grid, bond_prices_low,
-               label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
-               lw = 2, xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)",
-               title = "Bond Price Schedule for Distinct GDP States")
+            label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
+            lw = 2, xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)",
+            title = "Bond Price Schedule for Distinct GDP States",
+            xlims = (minimum(b_grid), 0.45)) 
+
     plot!(plt, b_grid, bond_prices_high,
-          label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
-          lw = 2)
+        label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
+        lw = 2,
+        xlims = (minimum(b_grid), 0.45)) 
 
     savefig(plt, "graphs/$(filename).png")
 end
 
 
-function comp_bond_schedule(results::Dict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
+function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
     if isempty(results)
         error("No results provided for comparison.")
     end
@@ -59,8 +62,8 @@ function comp_bond_schedule(results::Dict{String, <:Any}; filename::String, i_lo
         bond_prices_low  = vec(result.q_g[i_low, :])
         bond_prices_high = vec(result.q_g[i_high, :])
 
-        plot!(plt[1], b_grid, bond_prices_low, label = "$label (Low y)", lw = 2)
-        plot!(plt[2], b_grid, bond_prices_high, label = "$label (High y)", lw = 2, ls = :dash)
+        plot!(plt[1], b_grid, bond_prices_low, label = "$label (Low y)", lw = 2, xlims = (minimum(b_grid), 0.45))
+        plot!(plt[2], b_grid, bond_prices_high, label = "$label (High y)", lw = 2, ls = :dash, xlims = (minimum(b_grid), 0.45), legend = :bottomleft)
     end
 
     plot!(plt[1], xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)", title = "Bond Price Schedule at Low Income", framestyle = :box)

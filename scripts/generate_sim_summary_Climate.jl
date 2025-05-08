@@ -22,29 +22,29 @@ function export_group_table(models::Vector{Tuple{String,String}}, output_path::S
         println(io, "  supplement: \"Table\",\n")
         println(io, "block[")
         println(io, "  #table(")
-        println(io, "    columns: (auto, auto, auto, auto, auto, auto, auto),")
+        println(io, "    columns: (80pt, 80pt, 80pt, 80pt, 80pt),")
         println(io, "    align: center,")
         println(io, "    stroke: none,")
         println(io, "    inset: 6pt,\n")
 
         nrows = length(models) + 1
-        println(io, "    table.hline(y: 0, start: 0, end: 7, stroke: 0.8pt),")
-        println(io, "    table.hline(y: 1, start: 0, end: 7, stroke: 0.8pt),")
-        println(io, "    table.hline(y: $(nrows + 1), start: 0, end: 7, stroke: 0.8pt),\n")
+        println(io, "    table.hline(y: 0, start: 0, end: 5, stroke: 0.8pt),")
+        println(io, "    table.hline(y: 1, start: 0, end: 5, stroke: 0.8pt),")
+        println(io, "    table.hline(y: $(nrows + 1), start: 0, end: 5, stroke: 0.8pt),\n")
 
         println(io, "    table.header(")
-        println(io, "      [*Model*], [*Spread*], [*Debt/GDP*], [*Default*], [*Hurricane*], [*GDP Loss*], [*Mean GDP*]")
+        println(io, "      [*Model*], [*Spread*], [*Debt/GDP*], [*Default Freq.*], [*Hurricane Freq.*]")
         println(io, "    ),")
 
         for (label, file) in models
             m = collect_model_moments(file)
-            @printf(io, "    [*%s*], [%.1f], [%.2f], [%.3f], [%.3f], [%.3f], [%.3f],\n",
-                    label, m.spread, m.debtgdp, m.def, m.hur, m.gdploss, m.meangdp)
+            @printf(io, "    [*%s*], [%.1f], [%.2f], [%.3f], [%.3f],\n",
+                    label, m.spread, m.debtgdp, m.def, m.hur)
         end
 
         println(io, "\n    table.footer(")
         println(io, "      table.cell(")
-        println(io, "        colspan: 7,")
+        println(io, "        colspan: 5,")
         println(io, "        align: left,")
         println(io, "        inset: 4pt,")
         println(io, "        emph(\"$note\")")

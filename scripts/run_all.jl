@@ -1,5 +1,7 @@
 cd(normpath(joinpath(@__DIR__, "..")))
 
+using DataStructures
+
 include("plot_bond_schedule.jl")
 
 # --------------------------------------------------------
@@ -27,7 +29,7 @@ plot_and_save_bond_schedule(result_2P_RN; filename="BondSchedule_2P_PC_RN")
 plot_and_save_bond_schedule(result_CAT_RN; filename="BondSchedule_CAT_RN")
 
 # --- Step 5: Bond Price Schedule Comparison - RN ---
-instruments_RN = Dict(
+instruments_RN = OrderedDict(
     "Benchmark" => result_bench_RN,
     "1-Period PC" => result_1P_RN,
     "2-Period PC" => result_2P_RN,
@@ -37,7 +39,7 @@ instruments_RN = Dict(
 comp_bond_schedule(instruments_RN; filename="BS_Comparison_RN")
 
 # --- Step 6: Bond Price Schedule Comparison - Varying CAT coverage ---
-CAT_share_RN = Dict(
+CAT_share_RN = OrderedDict(
     "Benchmark" => result_bench_RN,
     "CAT Bond 55%" => result_CAT_RN,
     "CAT Bond 1.55%" => result_CAT_RN_share1,
@@ -74,7 +76,7 @@ plot_and_save_bond_schedule(result_2P_RN_climate; filename="BondSchedule_2P_PC_R
 plot_and_save_bond_schedule(result_CAT_RN_climate; filename="BondSchedule_CAT_RN_Climate")
 
 # --- Step 5: Bond Price Schedule Comparison - RN ---
-instruments_RN_climate = Dict(
+instruments_RN_climate = OrderedDict(
     "Benchmark Climate" => result_bench_RN_climate,
     "1-Period PC Climate" => result_1P_RN_climate,
     "2-Period PC Climate" => result_2P_RN_climate,
@@ -84,7 +86,7 @@ instruments_RN_climate = Dict(
 comp_bond_schedule(instruments_RN_climate; filename="BS_Comparison_RN_Climate")
 
 # --- Step 6: Bond Price Schedule Comparison - Varying CAT coverage ---
-CAT_share_RN_climate = Dict(
+CAT_share_RN_climate = OrderedDict(
     "Benchmark Climate" => result_bench_RN_climate,
     "CAT Bond 55% Climate" => result_CAT_RN_climate,
     "CAT Bond 1.55% Climate" => result_CAT_RN_share1_climate,
