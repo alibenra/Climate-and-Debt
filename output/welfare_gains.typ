@@ -11,17 +11,16 @@ block[
     inset: 6pt,
     table.hline(y: 0, start: 0, end: 2, stroke: 0.8pt),
     table.hline(y: 1, start: 0, end: 2, stroke: 0.8pt),
-    table.hline(y: 7, start: 0, end: 2, stroke: 0.8pt),
+    table.hline(y: 6, start: 0, end: 2, stroke: 0.8pt),
 
     table.header(
       [*Model*], [*Welfare Gain (%)*]
     ),
-    [*1P_RN*], [-0.224],
-    [*2P_RN*], [-0.260],
-    [*CAT_RN*], [-0.024],
-    [*1P_RA*], [-0.579],
-    [*2P_RA*], [-0.573],
-    [*CAT_RA*], [-0.110],
+    [*1P_RN*], [-0.223],
+    [*2P_RN*], [-0.269],
+    [*CAT RN 55%*], [-0.117],
+    [*CAT RN 1.55%*], [-0.012],
+    [*CAT RN 100%*], [-0.075],
 
     table.footer(
       table.cell(

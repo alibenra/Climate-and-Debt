@@ -18,30 +18,27 @@ function compute_ceq_gain(benchmark_path::String, bench_var::Symbol,
 end
 
 # Collect CEQ welfare results
-welfare_results = [
-    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN,
+welfare_results_climate = [
+    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN_climate,
                      "output/Vg_sim_1P_RN_climate.jld2",    :V_g_1P_RN_climate;    label="1P_RN"),
 
-    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN,
-                     "output/Vg_sim_2P_RN_climate.jld2",    :V_g_2P_RN;    label="2P_RN"),
+    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN_climate,
+                     "output/Vg_sim_2P_RN_climate.jld2",    :V_g_2P_RN_climate;    label="2P_RN"),
 
-    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN,
-                     "output/Vg_sim_CAT_RN_climate.jld2",   :V_g_CAT_RN;   label="CAT_RN"),
+    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN_climate,
+                     "output/Vg_sim_CAT_RN_climate.jld2",   :V_g_CAT_RN_climate;   label="CAT RN 55%"),
 
-    compute_ceq_gain("output/Vg_sim_bench_RA_climate.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_1P_RA_climate.jld2",    :V_g_1P_RA;    label="1P_RA"),
+    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN_climate,
+                     "output/Vg_sim_CAT_RN_share1_climate.jld2",    :V_g_CAT_RN_share1_climate;    label="CAT RN 1.55%"),
 
-    compute_ceq_gain("output/Vg_sim_bench_RA_climate.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_2P_RA_climate.jld2",    :V_g_2P_RA;    label="2P_RA"),
-
-    compute_ceq_gain("output/Vg_sim_bench_RA_climate.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_CAT_RA_climate.jld2",   :V_g_CAT_RA;   label="CAT_RA")
+    compute_ceq_gain("output/Vg_sim_bench_RN_climate.jld2", :V_g_bench_RN_climate,
+                     "output/Vg_sim_CAT_RN_share100_climate.jld2",   :V_g_CAT_RN_share100_climate;   label="CAT RN 100%")
 ]
 
-df_welfare = DataFrame(welfare_results)
+df_welfare_climate = DataFrame(welfare_results_climate)
 
 println("\nSummary of Welfare Gains - Climate Change (% vs. benchmark):")
-display(df_welfare)
+display(df_welfare_climate)
 
 # --- Write Typst Table ---
 # --- Write Stylized Typst Table ---
@@ -61,13 +58,13 @@ open("output/welfare_gains_climate.typ", "w") do io
 
     println(io, "    table.hline(y: 0, start: 0, end: 2, stroke: 0.8pt),")
     println(io, "    table.hline(y: 1, start: 0, end: 2, stroke: 0.8pt),")
-    println(io, "    table.hline(y: $(nrow(df_welfare) + 1), start: 0, end: 2, stroke: 0.8pt),\n")
+    println(io, "    table.hline(y: $(nrow(df_welfare_climate) + 1), start: 0, end: 2, stroke: 0.8pt),\n")
 
     println(io, "    table.header(")
     println(io, "      [*Model*], [*Welfare Gain (%)*]")
     println(io, "    ),")
 
-    for row in eachrow(df_welfare)
+    for row in eachrow(df_welfare_climate)
         @printf(io, "    [*%s*], [%.3f],\n", row.Model, row.WelfareGain)
     end
 

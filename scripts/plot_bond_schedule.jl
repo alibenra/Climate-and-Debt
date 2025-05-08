@@ -1,7 +1,7 @@
 # plot_bond_schedule.jl
 cd(normpath(joinpath(@__DIR__, "..")))
 
-using Plots, Measures
+using Plots, Measures, DataFrames
 
 function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i_high::Int = -1)
     b_g_vec = result.b_g_vec

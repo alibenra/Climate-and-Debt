@@ -2,9 +2,37 @@ cd(normpath(joinpath(@__DIR__, "..")))
 
 using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plots, Random
 
+# Run this line to run the file independently
+# include("Benchmark_RN.jl")
+
 # ========================================================
 # 0. Country-Specific Parameter Function
 # ========================================================
+# ——————————————————————————————————————
+# Compute CAT premium from hurricane risk alone
+# ——————————————————————————————————————
+
+# 0) pick up your hurricane probability and debt grid
+p_hu    = get_country_params_bench("Jamaica").p_hu   # e.g. ≃0.103 per quarter
+b_g_vec = result_bench_RN.b_g_vec                    # 1×N_b vector of debt levels
+r       = 0.0451                               # same μ_r you use in main loop
+
+# 1) survival probability each period
+E_surv = fill(1 - p_hu, length(b_g_vec))      
+
+# 2) build price & premium
+disc      = 1.0 + r
+sqrt_term = sqrt.((r .* E_surv).^2 .+ 4 .* disc .* E_surv)
+q_cat_by_b = (-r .* E_surv .+ sqrt_term) ./ (2 .* disc)
+Π_cat_by_b = 1.0 ./ q_cat_by_b .- 1.0 .- r
+
+# 3) display as percentages
+@printf("Pure CAT‑bond premium (%%) by debt level:\n")
+for (j, B) in enumerate(vec(b_g_vec))
+    @printf("  B = %6.3f → Π_cat = %5.2f%%\n",
+            B, 100 * Π_cat_by_b[j])
+end
+Π_cat = Π_cat_by_b[1]
 
 # Calibration Parameters
 global_beta = 0.925 # Target Debt/GDP - perfect for seed 99 is 0.925
@@ -24,7 +52,7 @@ function get_country_params(country::String)
         mean_h = 1 - cc_int * 0.023,
         p_hu = cc_freq * 0.103,
         f_CAT = 1.0,
-        Π_cat = 0.0571
+        Π_cat = Π_cat
         )
 end
 
@@ -33,22 +61,27 @@ end
 # ========================================================
 function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_eh, p_hu, cc_int, mean_h)
     # --- Income Process ---
-    N = N_y
-    mu_val = -0.5 * sigma_ey^2 / (1 - rho_y^2)
-    rho_val = rho_y
-    sigma_val = sigma_ey
-    m = int_y
-    Z = zeros(Float64, N)
-    Zprob = zeros(Float64, N, N)
+    # Setting the Income Grid Size and Parameters
+    N = N_y # Number of grid point
+    mu_val = -0.5 * sigma_ey^2 / (1 - rho_y^2) # Adjustment term to discretize a log-normal process
+    rho_val = rho_y # Persistence parameter for shocks
+    sigma_val = sigma_ey # Volatility parameter for shocks
+    m = int_y # Parameter used to scale the endpoints of the grid
+
+    # Initializing the Grid
+    Z = zeros(Float64, N) # This will store the grid values
+    Zprob = zeros(Float64, N, N) # This will store the transition probabilities between grid points
     a = (1 - rho_val) * mu_val
 
+    # Defining the endpoints and filling the grid
     Z[N] = m * sqrt(sigma_val^2 / (1 - rho_val^2))
     Z[1] = -Z[N]
     zstep = (Z[N] - Z[1]) / (N - 1)
     for i in 2:(N - 1)
         Z[i] = Z[1] + zstep * (i - 1)
     end
-
+    
+    # Adjusting the grid to ensure it reflects the mean and dynamics of the underlying AR(1) process
     Z .= Z .+ a / (1 - rho_val)
     for j in 1:N
         for k in 1:N
@@ -62,8 +95,8 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
             end
         end
     end
-    ly_vec = copy(Z)
-    P_y = copy(Zprob)
+    ly_vec = copy(Z) # This is the ygrid in log form
+    P_y = copy(Zprob) # This is the Transition Matrix
     @printf("Julia: ly_vec and P_y generated. Size ly_vec: %d, P_y: %d x %d\n", length(ly_vec), size(P_y, 1), size(P_y, 2))
 
     # --- Hurricane Process ---
@@ -96,10 +129,10 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
                 end
             end
         end
-        lh_vec = copy(Z)
-        P_h = copy(Zprob)
-        P_h .= p_hu .* P_h
-        left_col = (1 - p_hu) * ones(Float64, N_h - 1, 1)
+        lh_vec = copy(Z) # This is the Hurricane Grid in Log Form
+        P_h = copy(Zprob)  # This is the Transition Matrix in the Hurricane Grid
+        P_h .= p_hu .* P_h # The Hurricane Transition Matrix is scaled to reflect the overall probability of a hurricane occuring
+        left_col = (1 - p_hu) * ones(Float64, N_h - 1, 1) # This is a column to have an additinal state of non-occurence of a hurricane
         P_h = hcat(left_col, P_h)
         P_h = vcat(P_h[1, :]', P_h)
     else
@@ -109,15 +142,18 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
     @printf("Julia: Hurricane process generated:\nSize of lh_vec: %d\nSize of P_h: %d x %d\n", length(lh_vec), size(P_h, 1), size(P_h, 2))
 
     # --- Combine into P_x ---
-    y_vec = exp.(ly_vec)
-    h_vec = mean_h .* exp.(lh_vec)
-    h_vec = vcat(1.0, h_vec)
+    y_vec = exp.(ly_vec) # This converts the grid from log to y form
+    h_vec = mean_h .* exp.(lh_vec) # This both converts the hurricane grid out of the log form and scale it by the average loss from a hurricane shock
+    h_vec = min.(mean_h .* exp.(lh_vec), 1.0)
+    h_vec = vcat(1.0, h_vec) # Hurricane grid with a state that represents the non-occurence of a hurricane
 
+    # The following uses the Kronecker product to obtain an Income grid taking into account output shocks AND hurricane shocks 
     h_vec_gdp = kron(ones(N_y, 1), h_vec)
     y_vec_gdp = kron(y_vec, ones(N_h, 1))
     gdp_vec = h_vec_gdp .* y_vec_gdp
     @printf("Julia: gdp_vec defined: %d x %d\n", size(gdp_vec, 1), size(gdp_vec, 2))
 
+    # The goal here is to create a joint transition matrix for the Income grid that combines incomes and hurricane transition probabilities
     N_x = N_y * N_h
     P_x_int = zeros(Float64, N_x, N_y)
     index_store = zeros(Int, N_x)
@@ -207,9 +243,11 @@ function default_iteration_CAT_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta,
     h_state_grid = reshape(repeat(h_vec_2sh, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g) # This array does for hurricane shocks what y_state_grid does for income.
     
     # 1) a vector xi_vec of length Nₓ that is 1 when h shock occurs, 0 otherwise
-    xi_vec = repeat([0.0; ones(N_h-1)], N_y)
-    # 2) lift into a 3‑D array, same dims as b_state_grid
-    xi_state = reshape(repeat(xi_vec, inner=(1,N_b_g,N_b_g)), N_x, N_b_g, N_b_g)
+    # Indicator for h < 1.0
+    xi_vec = map(h -> h < 1.0 ? 1.0 : 0.0, h_vec_2sh)
+
+    # Now lift into 3D
+    xi_state = reshape(repeat(xi_vec, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
     # 3) compute CAT‐notional array
     B_cat_state = f_CAT .* b_state_grid
     B_cat_mat = f_CAT .* (xi_vec * b_g_vec)       

@@ -64,16 +64,6 @@ rn_models = [
     ("CAT 100%",    "output/sim_CAT_RN_share100.jld2")
 ]
 
-ra_models = [
-    ("Benchmark", "output/sim_bench_RA.jld2"),
-    ("CAT 55%",     "output/sim_CAT_RA.jld2"),
-    ("CAT 1.55%",     "output/sim_CAT_RA_share1.jld2"),
-    ("CAT 100%",    "output/sim_CAT_RA_share100.jld2")
-]
-
 # === Write Output Files ===
 export_group_table(rn_models, "output/group_sim_RN_CAT_Share.typ",
     "Simulated moments from risk-neutral model set. GDP loss conditional on hurricane occurrence.")
-
-export_group_table(ra_models, "output/group_sim_RA_CAT_Share.typ",
-    "Simulated moments from risk-averse model set. GDP loss conditional on hurricane occurrence.")

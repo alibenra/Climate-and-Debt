@@ -59,21 +59,13 @@ end
 # === RN and RA Model Lists ===
 rn_models = [
     ("Benchmark", "output/sim_bench_RN_climate.jld2"),
-    ("1P RN",     "output/sim_1P_PC_RN_climate.jld2"),
-    ("2P RN",     "output/sim_2P_PC_RN_climate.jld2"),
-    ("CAT RN",    "output/sim_CAT_RN_climate.jld2")
-]
-
-ra_models = [
-    ("Benchmark", "output/sim_bench_RA_climate.jld2"),
-    ("1P RA",     "output/sim_1P_PC_RA_climate.jld2"),
-    ("2P RA",     "output/sim_2P_PC_RA_climate.jld2"),
-    ("CAT RA",    "output/sim_CAT_RA_climate.jld2")
+    ("1P PC",     "output/sim_1P_PC_RN_climate.jld2"),
+    ("2P PC",     "output/sim_2P_PC_RN_climate.jld2"),
+    ("CAT 55%",    "output/sim_CAT_RN_climate.jld2"),
+    ("CAT 1.55%",     "output/sim_CAT_RN_share1_climate.jld2"),
+    ("CAT 100%",    "output/sim_CAT_RN_share100_climate.jld2")
 ]
 
 # === Write Output Files ===
 export_group_table(rn_models, "output/group_sim_RN_climate.typ",
     "Simulated moments from risk-neutral model set. GDP loss conditional on hurricane occurrence. Climate Change")
-
-export_group_table(ra_models, "output/group_sim_RA_climate.typ",
-    "Simulated moments from risk-averse model set. GDP loss conditional on hurricane occurrence. Climate Change")

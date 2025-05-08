@@ -10,7 +10,7 @@ using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plo
 global_beta = 0.925 # Target Debt/GDP - perfect for seed 99 is 0.925
 global_wc = 0.725 # Target Mean Spread - perfect for seed 99 is 0.725
 
-function get_country_params(country::String)
+function get_country_params_bench(country::String)
     cc_int = 1 # Equals to 1 when there is hurricane risk
     cc_freq = 1 # Equals to 1 when there is hurrican risk
     country == "Jamaica"
@@ -117,6 +117,7 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
     # --- Combine into P_x ---
     y_vec = exp.(ly_vec) # This converts the grid from log to y form
     h_vec = mean_h .* exp.(lh_vec) # This both converts the hurricane grid out of the log form and scale it by the average loss from a hurricane shock
+    h_vec = min.(mean_h .* exp.(lh_vec), 1.0)
     h_vec = vcat(1.0, h_vec) # Hurricane grid with a state that represents the non-occurence of a hurricane
 
     # The following uses the Kronecker product to obtain an Income grid taking into account output shocks AND hurricane shocks 
@@ -500,7 +501,7 @@ function main_country_RN(country::String)
     int_h = 2 * (N_h != 1 ? 1 : 0) + eps() * (N_h == 1)
 
     # Load country-specific parameters
-    country_params = get_country_params(country)
+    country_params = get_country_params_bench(country)
     sigma_ey      = country_params.sigma_ey
     rho_y         = country_params.rho_y
     beta          = country_params.beta

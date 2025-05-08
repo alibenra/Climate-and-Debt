@@ -10,7 +10,7 @@ using LinearAlgebra, Statistics, Printf, SpecialFunctions, JLD2, DataFrames, Plo
 global_beta = 0.925 # Target Debt/GDP - perfect for seed 99 is 0.925
 global_wc = 0.725 # Target Mean Spread - perfect for seed 99 is 0.725
 
-function get_country_params(country::String)
+function get_country_params_climate(country::String)
     cc_int = 1.485 # Increase in the damages of disastrous climate events
     cc_freq = 1.292 # Increase in the frequency of disastrous climate events
     country == "Jamaica"
@@ -33,22 +33,27 @@ end
 # ========================================================
 function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_eh, p_hu, cc_int, mean_h)
     # --- Income Process ---
-    N = N_y
-    mu_val = -0.5 * sigma_ey^2 / (1 - rho_y^2)
-    rho_val = rho_y
-    sigma_val = sigma_ey
-    m = int_y
-    Z = zeros(Float64, N)
-    Zprob = zeros(Float64, N, N)
+    # Setting the Income Grid Size and Parameters
+    N = N_y # Number of grid point
+    mu_val = -0.5 * sigma_ey^2 / (1 - rho_y^2) # Adjustment term to discretize a log-normal process
+    rho_val = rho_y # Persistence parameter for shocks
+    sigma_val = sigma_ey # Volatility parameter for shocks
+    m = int_y # Parameter used to scale the endpoints of the grid
+
+    # Initializing the Grid
+    Z = zeros(Float64, N) # This will store the grid values
+    Zprob = zeros(Float64, N, N) # This will store the transition probabilities between grid points
     a = (1 - rho_val) * mu_val
 
+    # Defining the endpoints and filling the grid
     Z[N] = m * sqrt(sigma_val^2 / (1 - rho_val^2))
     Z[1] = -Z[N]
     zstep = (Z[N] - Z[1]) / (N - 1)
     for i in 2:(N - 1)
         Z[i] = Z[1] + zstep * (i - 1)
     end
-
+    
+    # Adjusting the grid to ensure it reflects the mean and dynamics of the underlying AR(1) process
     Z .= Z .+ a / (1 - rho_val)
     for j in 1:N
         for k in 1:N
@@ -62,8 +67,8 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
             end
         end
     end
-    ly_vec = copy(Z)
-    P_y = copy(Zprob)
+    ly_vec = copy(Z) # This is the ygrid in log form
+    P_y = copy(Zprob) # This is the Transition Matrix
     @printf("Julia: ly_vec and P_y generated. Size ly_vec: %d, P_y: %d x %d\n", length(ly_vec), size(P_y, 1), size(P_y, 2))
 
     # --- Hurricane Process ---
@@ -96,10 +101,10 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
                 end
             end
         end
-        lh_vec = copy(Z)
-        P_h = copy(Zprob)
-        P_h .= p_hu .* P_h
-        left_col = (1 - p_hu) * ones(Float64, N_h - 1, 1)
+        lh_vec = copy(Z) # This is the Hurricane Grid in Log Form
+        P_h = copy(Zprob)  # This is the Transition Matrix in the Hurricane Grid
+        P_h .= p_hu .* P_h # The Hurricane Transition Matrix is scaled to reflect the overall probability of a hurricane occuring
+        left_col = (1 - p_hu) * ones(Float64, N_h - 1, 1) # This is a column to have an additinal state of non-occurence of a hurricane
         P_h = hcat(left_col, P_h)
         P_h = vcat(P_h[1, :]', P_h)
     else
@@ -109,15 +114,18 @@ function setup_exogenous_process(N_y, N_h, int_y, int_h, sigma_ey, rho_y, sigma_
     @printf("Julia: Hurricane process generated:\nSize of lh_vec: %d\nSize of P_h: %d x %d\n", length(lh_vec), size(P_h, 1), size(P_h, 2))
 
     # --- Combine into P_x ---
-    y_vec = exp.(ly_vec)
-    h_vec = mean_h .* exp.(lh_vec)
-    h_vec = vcat(1.0, h_vec)
+    y_vec = exp.(ly_vec) # This converts the grid from log to y form
+    h_vec = mean_h .* exp.(lh_vec) # This both converts the hurricane grid out of the log form and scale it by the average loss from a hurricane shock
+    h_vec = min.(mean_h .* exp.(lh_vec), 1.0)
+    h_vec = vcat(1.0, h_vec) # Hurricane grid with a state that represents the non-occurence of a hurricane
 
+    # The following uses the Kronecker product to obtain an Income grid taking into account output shocks AND hurricane shocks 
     h_vec_gdp = kron(ones(N_y, 1), h_vec)
     y_vec_gdp = kron(y_vec, ones(N_h, 1))
     gdp_vec = h_vec_gdp .* y_vec_gdp
     @printf("Julia: gdp_vec defined: %d x %d\n", size(gdp_vec, 1), size(gdp_vec, 2))
 
+    # The goal here is to create a joint transition matrix for the Income grid that combines incomes and hurricane transition probabilities
     N_x = N_y * N_h
     P_x_int = zeros(Float64, N_x, N_y)
     index_store = zeros(Int, N_x)
@@ -537,14 +545,14 @@ function main_country_1P_RN(country::String)
     int_y = 2.5 * (N_y != 1 ? 1 : 0) + eps() * (N_y == 1)
     int_h = 2 * (N_h != 1 ? 1 : 0) + eps() * (N_h == 1)
 
-    country_params = get_country_params(country)
+    country_params = get_country_params_climate(country)
     sigma_ey      = country_params.sigma_ey
     rho_y         = country_params.rho_y
     beta          = country_params.beta
     wc_par_asymm  = country_params.wc_par_asymm
     delta         = country_params.delta
     sigma_eh      = country_params.sigma_eh
-    cc_int        = 1
+    cc_int        = 1.485
     mean_h        = country_params.mean_h
     p_hu          = country_params.p_hu
 

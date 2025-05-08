@@ -26,16 +26,7 @@ welfare_results = [
                      "output/Vg_sim_CAT_RN_share1.jld2",    :V_g_CAT_RN_share1;    label="CAT RN 1.55%"),
 
     compute_ceq_gain("output/Vg_sim_bench_RN.jld2", :V_g_bench_RN,
-                     "output/Vg_sim_CAT_RN_share100.jld2",   :V_g_CAT_RN_share100;   label="CAT RN 100%"),
-
-    compute_ceq_gain("output/Vg_sim_bench_RA.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_CAT_RA.jld2",    :V_g_CAT_RA;    label="CAT RA 55%"),
-
-    compute_ceq_gain("output/Vg_sim_bench_RA.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_CAT_RA_share1.jld2",    :V_g_CAT_RA_share1;    label="CAT RA 1.55%"),
-
-    compute_ceq_gain("output/Vg_sim_bench_RA.jld2", :V_g_bench_RA,
-                     "output/Vg_sim_CAT_RA_share100.jld2",   :V_g_CAT_RA_share100;   label="CAT RA 100%")
+                     "output/Vg_sim_CAT_RN_share100.jld2",   :V_g_CAT_RN_share100;   label="CAT RN 100%")
 ]
 
 df_welfare = DataFrame(welfare_results)
