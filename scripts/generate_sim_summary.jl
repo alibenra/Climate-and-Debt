@@ -68,4 +68,4 @@ rn_models = [
 
 # === Write Output Files ===
 export_group_table(rn_models, "output/group_sim_RN.typ",
-    "Simulated moments from risk-neutral model set. GDP loss conditional on hurricane occurrence.")
+    "Simulated moments from risk-neutral model set.")

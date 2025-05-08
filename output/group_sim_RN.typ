@@ -30,7 +30,7 @@ block[
         colspan: 5,
         align: left,
         inset: 4pt,
-        emph("Simulated moments from risk-neutral model set. GDP loss conditional on hurricane occurrence.")
+        emph("Simulated moments from risk-neutral model set.")
       )
     )
   )
