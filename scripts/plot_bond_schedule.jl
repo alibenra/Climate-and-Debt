@@ -15,18 +15,18 @@ function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i
 
     bond_prices_low  = vec(q_g[i_low, :])
     bond_prices_high = vec(q_g[i_high, :])
-    b_grid = vec(b_g_vec)
+    b_grid = -vec(b_g_vec)  # Flip sign to match convention
 
     plt = plot(b_grid, bond_prices_low,
             label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
             lw = 2, xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)",
             title = "Bond Price Schedule for Distinct GDP States",
-            xlims = (minimum(b_grid), 0.45)) 
+            xlims = (-0.45, 0.00)) 
 
     plot!(plt, b_grid, bond_prices_high,
         label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
         lw = 2,
-        xlims = (minimum(b_grid), 0.45)) 
+        xlims = (-0.45, 0.00)) 
 
     savefig(plt, "graphs/$(filename).png")
 end
@@ -58,12 +58,12 @@ function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::Strin
     )
 
     for (label, result) in results
-        b_grid = vec(result.b_g_vec)
+        b_grid = -vec(result.b_g_vec)  # Flip sign to match convention
         bond_prices_low  = vec(result.q_g[i_low, :])
         bond_prices_high = vec(result.q_g[i_high, :])
 
-        plot!(plt[1], b_grid, bond_prices_low, label = "$label (Low y)", lw = 2, xlims = (minimum(b_grid), 0.45))
-        plot!(plt[2], b_grid, bond_prices_high, label = "$label (High y)", lw = 2, ls = :dash, xlims = (minimum(b_grid), 0.45), legend = :bottomleft)
+        plot!(plt[1], b_grid, bond_prices_low, label = "$label", lw = 2, xlims = (-0.45, 0.00))
+        plot!(plt[2], b_grid, bond_prices_high, label = "$label", lw = 2, ls = :dash, xlims = (-0.45, 0.00), legend = :bottomright)
     end
 
     plot!(plt[1], xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)", title = "Bond Price Schedule at Low Income", framestyle = :box)

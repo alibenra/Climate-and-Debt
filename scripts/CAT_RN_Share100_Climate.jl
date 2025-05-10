@@ -678,52 +678,14 @@ function main_country_CAT_RN(country::String)
     )
 end
 
-# ========================================================
-# 6. Bond Price Schedule Graph
-# ========================================================
-
-function plot_bond_price_schedule_with_gdp(
-    b_g_vec,    # Debt grid
-    q_g,        # Bond price grid
-    gdp_vec,    # Sorted combined GDP states
-    gdp_mean,
-    # Instead of thresholds, pick explicit indices
-    i_low::Int = 1,
-    i_high::Int = -1)
-    # If i_high = -1, that means pick the last element
-    if i_high < 0
-        i_high = length(gdp_vec)
-    end
-
-    # Extract bond prices
-    bond_prices_low  = vec(q_g[i_low, :])
-    bond_prices_high = vec(q_g[i_high, :])
-
-    b_grid = vec(b_g_vec)
-
-    plt = plot(b_grid, bond_prices_low,
-               label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
-               lw = 2, xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)",
-               title = "Bond Price Schedule for Distinct GDP States")
-    plot!(plt, b_grid, bond_prices_high,
-          label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
-          lw = 2)
-
-    return plt
-end
-
 # =============================================================================================
-# 7. Running the model, outputting the price schedule graph, and saving simulation results
+# 6. Running the model and saving simulation results
 # =============================================================================================
 
 # Running the model and its simulation
 @time begin
     result_CAT_RN_share100_climate = main_country_CAT_RN("Jamaica")
 end
-
-# Call the plotting function using the outputs from main_country:
-plt = plot_bond_price_schedule_with_gdp(result_CAT_RN_share1.b_g_vec, result_CAT_RN_share1.q_g, result_CAT_RN_share1.gdp_vec, result_CAT_RN_share1.meanDebtGDP)
-display(plt)
 
 # Saving model simulations results
 V_g_CAT_RN_share100_climate = result_CAT_RN_share100_climate.V_g_mean

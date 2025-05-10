@@ -645,7 +645,7 @@ function main_country_RN(country::String)
 end
 
 # =============================================================================================
-# 7. Running the model and saving simulation results
+# 6. Running the model and saving simulation results
 # =============================================================================================
 
 # Running the model and its simulation
