@@ -4,7 +4,7 @@
 #set par(
   first-line-indent: 2em,
   spacing: 1.2em,
-  leading: 1.2em,
+  leading: 1em,
   justify: true,
 )
 
