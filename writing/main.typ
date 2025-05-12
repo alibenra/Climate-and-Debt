@@ -149,6 +149,57 @@ This paper thus also contributes to the growing literature on climate resilience
 
 Finally, this paper connects to the literature on the economic impacts of natural disasters. Gallup et al. (1999), Nordhaus (2006), and Dell et al. (2012) find that rising temperatures significantly reduce economic growth in developing countries, while Burke et al. (2015) show that warming primarily harms countries in already hot climates, suggesting that natural disasters may disproportionately affect emerging economies. Cevik and Jalles (2022) further demonstrate that climate vulnerability and resilience strongly influence sovereign borrowing costs, with more resilient countries enjoying lower spreads. This latter paper also shows that these effects are especially pronounced in developing economies with limited capacity to adapt to climate risks.
 
+\
+
+= The Model Economy
+\
+
+
+
+\
+
+= Recursive Formulation
+\
+
+
+
+
+\
+
+= Introducing Climate-Resilient Instruments 
+\
+
+
+
+\
+
+= Quantitative Evaluation
+\
+
+
+
+
+
+\
+
+= Conclusion
+\
+
+
+
+
+\
+
+= Appendix
+\
+
+== Benchnmark model with risk-averse investors 
+\
+
+
+== Solution algorithm
+\
+
 
 #pagebreak()
 
