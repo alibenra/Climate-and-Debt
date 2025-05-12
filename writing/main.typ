@@ -154,6 +154,57 @@ Finally, this paper connects to the literature on the economic impacts of natura
 = The Model Economy
 \
 
+In the benchmark model, we consider a small open economy populated by identical risk-averse households. The government of the economy seeks to maximize their discounted expedcted lifetime utility from consumption given by
+$ E_0[sum^(infinity)_(t=0) beta^t u(c_t)] $
+where $0 < beta < 1$ refers to the subjective discount factor.
+
+The periodic utility of households displays a constrant coefficient of relative risk aversion, represented by $gamma >0$, such that:
+$ u(c_t) = frac(c_t^(1-gamma), 1-gamma) $ \
+
+In each period, households recieve a stoachastic stream of consumption goods $y_t$, which will represent the governent's endowment. The government's income process is assumed to be a log-normal AR(1) process such that:
+$ log(y_t) = rho log(y_(t-1)) + epsilon^y_t $
+where $epsilon^y_t ~^(text("iid")) 𝒩(0, sigma^2_y)$ and $abs(rho)<1$
+
+In this framework, the output depends not only on the income process and the associated exogenous business cycle fluctuations and macoreocnomic shocks, but also on hurricane risk. In order the represent the impact of hurricane risk on output, it is introduced as a multiplicative distortion of income. Effectively, hurricane schok $h_t$ directly scales output each period, such that realized output is:
+$ x_t = y_t dot h_t $
+Formally, the hurricaner shock process is defines as:
+$ h_t = cases(
+  1  #h(3.5cm) "with probability" 1 - pi_H, 
+  min{macron(h) dot exp(𝓁_t), 1} #h(0.45cm) "with probability" pi_H
+) $
+where:
+- $𝓁_t ~^text("iid") 𝒩(mu_𝓁, sigma^2_𝓁)$ is a log-loss shock draw from a normal distribution
+- $pi_H in (0, 1)$ denotes the probability of a major hurricane
+- $macron(h) in (0, 1)$ is a scaling constant calibrated to match the empirically observed mean loss conditional on a disaster
+In order to esnure the expected loss factor is properly centered, we impose the normalization $mu_𝓁 = -frac(1, 2)sigma_𝓁^2$, which implies $#math.bb("E") [exp(𝓁_t)] = 1$. The goal of this step is to ensure that $exp(𝓁_t)$ does not to bias $h_t$ upward or downward on average in order to capture the mean hurricane loss entirely by $macron(h)$ to match the empirical average loss. 
+On the other hand, the truncation operator #box[$min{dot,1}$] ensures that hurricane shocks never result in output gains, so that #box[$h_t <= 1$].
+Economically, the truncation operator reflects the fact that even when a hurricane hits, it might not cause observable damage to economic activities and thuis be equal to 1. Additionally, it also reflects the uncertainty revolving around the trigger of climate-contingent instruments. Parametric triggers adopted in many designs of both DPCs and CAT bonds are only activated if a certain threshold is met under very specific criteria (World Bank, 2022). Therefore, even if a rare and major hurricane hits, it may not activate payouts. This conservative modeling approach preserves the log-normal shape of disaster risk while maintaining interpretability and tractability in both standard and contingent debt environments.
+
+\
+
+In each period of the model, the government makes two key decisions. 
+1. First, it chooses whether to default or not. The choice of default has two major implications for the sovereign
+  - If default is chosen, the government suffers from an associated cost on output, represented by an endowment loss function. Following Arellano (2008), the default cost on output function takes an asymmetric form:
+  $ g(y) = cases(
+    hat(y) = (1 - lambda) #math.bb("E") (y) #h(1.02cm) "if" y > hat(y),
+    y #h(3.5cm) "if" y <= hat(y)
+  ) 
+  $ 
+  #h(0.5cm) where $0< lambda <1$ represents the endowment loss
+  - In case of default, the sovereign is excluded from the international market and may only rejoin with probability $theta$
+
+2. Second, in the case of repayment, it chooses the amount of bond issuances to aim for in the current period. 
+\
+
+We assume that bonds are LT à la Hatchondo and Martinez (2009). This means that a bond issued in period t promises an infinite stream of coupons which decreases at a constant rate $psi$. Therefore, one unit of bond issued in period t implies a promised payment of 1 at $t+1$, $(1-psi)$ at $t+2$, $(1-psi^2)$ at t+3... As such, the promised cashflow of a bond is $(1 - psi)^(j-1)$ in period $t+j$ for all $j>= 1$. This specifcation allows model the effective maturity through the constant decrease in $psi$. If $psi = 0$, the bond would correspond to a perpetuity. If $psi = 1$, the bond would effectively become a one-period bond. If $0 <psi < 1$, the framework would model decaying-coupon LT bonds. 
+
+LT bonds are modeled to adopt the following law of motion. In the absence of a default or of a new issuance, a government's debt position at the start of the next period is $ b' = (1-d)(1- psi)b - i $
+where $d=1$ if the government defaults, and $i>0$ represents new government issuance. 
+\
+Therefore, new issuance at the next period corresponds to the difference between the choice of next-period debt position $b'$ and current debt position given the decision to default and the decaying structure of LT bonds, such that :
+$ i = b' - (1-d)(1- psi)b  $
+Following Hatchondo and Martinez (2009), we use the Macaulay definition of duration to calibrate the bond duration in the model. 
+
 
 
 \
