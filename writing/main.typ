@@ -161,7 +161,7 @@ where $0 < beta < 1$ refers to the subjective discount factor.
 The periodic utility of households displays a constrant coefficient of relative risk aversion, represented by $gamma >0$, such that:
 $ u(c_t) = frac(c_t^(1-gamma), 1-gamma) $ \
 
-In each period, households recieve a stoachastic stream of consumption goods $y_t$, which will represent the governent's endowment. The government's income process is assumed to be a log-normal AR(1) process such that:
+_Total Output Process._ #h(0.5cm) In each period, households recieve a stoachastic stream of consumption goods $y_t$, which will represent the governent's endowment. The government's income process is assumed to be a log-normal AR(1) process such that:
 $ log(y_t) = rho log(y_(t-1)) + epsilon^y_t $
 where $epsilon^y_t ~^(text("iid")) 𝒩(0, sigma^2_y)$ and $abs(rho)<1$
 
@@ -185,7 +185,7 @@ Economically, the truncation operator reflects the fact that even when a hurrica
 In each period of the model, the government makes two key decisions. 
 1. First, it chooses whether to default or not. The choice of default has two major implications for the sovereign
   - If default is chosen, the government suffers from an associated cost on output, represented by an endowment loss function. Following Arellano (2008), the default cost on output function takes an asymmetric form:
-  $ g(y) = cases(
+  $ y^("def") = cases(
     hat(y) = (1 - lambda) #math.bb("E") (y) #h(1.02cm) "if" y > hat(y),
     y #h(3.5cm) "if" y <= hat(y)
   ) 
@@ -196,14 +196,72 @@ In each period of the model, the government makes two key decisions.
 2. Second, in the case of repayment, it chooses the amount of bond issuances to aim for in the current period. 
 \
 
-We assume that bonds are LT à la Hatchondo and Martinez (2009). This means that a bond issued in period t promises an infinite stream of coupons which decreases at a constant rate $psi$. Therefore, one unit of bond issued in period t implies a promised payment of 1 at $t+1$, $(1-psi)$ at $t+2$, $(1-psi^2)$ at t+3... As such, the promised cashflow of a bond is $(1 - psi)^(j-1)$ in period $t+j$ for all $j>= 1$. This specifcation allows model the effective maturity through the constant decrease in $psi$. If $psi = 0$, the bond would correspond to a perpetuity. If $psi = 1$, the bond would effectively become a one-period bond. If $0 <psi < 1$, the framework would model decaying-coupon LT bonds. 
+_Long-Term Bonds Framework._ #h(0.5cm) We assume that bonds are LT à la Hatchondo and Martinez (2009). This means that a bond issued in period t promises an infinite stream of coupons which decreases at a constant rate $psi$. Therefore, one unit of bond issued in period t implies a promised payment of 1 at $t+1$, $(1-psi)$ at $t+2$, $(1-psi^2)$ at t+3... As such, the promised cashflow of a bond is $(1 - psi)^(j-1)$ in period $t+j$ for all $j>= 1$. This specifcation allows model the effective maturity through the constant decrease in $psi$. If $psi = 0$, the bond would correspond to a perpetuity. If $psi = 1$, the bond would effectively become a one-period bond. If $0 <psi < 1$, the framework would model decaying-coupon LT bonds. 
 
 LT bonds are modeled to adopt the following law of motion. In the absence of a default or of a new issuance, a government's debt position at the start of the next period is $ b' = (1-d)(1- psi)b - i $
 where $d=1$ if the government defaults, and $i>0$ represents new government issuance. 
 \
 Therefore, new issuance at the next period corresponds to the difference between the choice of next-period debt position $b'$ and current debt position given the decision to default and the decaying structure of LT bonds, such that :
 $ i = b' - (1-d)(1- psi)b  $
-Following Hatchondo and Martinez (2009), we use the Macaulay definition of duration to calibrate the bond duration in the model. 
+
+Using a discount rate r, we can compute the present value (PV) of the promised cashflow sequence attached to a bond issued today as follows:
+$ "PV"(r) = sum^(infinity)_(j=1) frac((1-psi)^(j-1), (1+r)^j) $
+Recognnizing the sum of an infinite geometric series:
+$ "PV"(r) & = sum^(infinity)_(j=1) frac(1, 1+r) (frac(1-psi, 1+r))^(j-1) \
+ & = frac(1, 1+r) dot (frac(r+ psi, 1+r))^(-1) \
+ & = frac(1, r+psi)
+$
+We can thus define an expression of the value of the bond equal to its promised cashflow sequence, such that $q = frac(1, r+psi)$. Using this definition, we can derive an expression of the dond duration following the Macaulay definition used by Hatchondo and Martinez (2009). As such, the bond's duration is defined as:
+$ D = sum^(infinity)_(j=1) w_j times j $
+where $w_j = frac(1,q) dot frac((1-psi)^(j-1),(1+r)^j)$ such that: 
+$ sum^(infinity)_(j=1) w_j & = frac(1,q) dot frac((1-psi)^(j-1),(1+r)^j) \
+& = frac(1,q) dot frac(1, r+psi) \
+& = 1
+$
+$w_j$ thus refers to the weights which represetn the fraction of the bond's value q from the cashflow sequence promised at date j.
+\
+We also notice that for $j>=1$, $ w_j = phi^(j-1) w_1 $ 
+#h(3cm) where $phi = frac(1-psi, 1+r)$ #h(1cm) and #h(1cm)$w_1 = frac(1,q) dot frac(1, 1+r) = frac(r+psi, 1+r) = 1 - phi$
+\
+Combining all previous definitions, we can thus express the Macaulay duration of a decaying-coupon bond as follows #footnote[ 
+Let $S = 1 + phi + phi^2 + ... = (1- phi)^(-1)$ 
+\
+  
+Consider that
+$ sum^(infinity)_(j=1) phi^(j-1) times j & = 1 + 2 phi + 3 ^phi^2 + ... \
+& = 1 + phi + phi^2 + ... + phi + phi^2 + ... + phi^2 + ... \
+& = S + phi (1 + phi + phi^2 + ...) + ... \
+& = S + phi S + phi^2 S + ... \
+& = S (1+ phi + phi^2 + ...) \
+& = S^2 \
+& = frac(1, (1-phi)^2)
+$
+]:
+$ D & = (1-phi) sum^(infinity)_(j=1) phi^(j-1) times j\ 
+& = (1-phi) dot  frac(1, (1-phi)^2) \
+& = frac(1, 1-phi) \
+& = frac(1+r, r + psi)
+$
+As such, for a one-period coupon bond, $psi = 1$ and $D=1$, while for long-term bonds in the Hatchond-Martinez framework, $psi <1$ and $D>1$.
+
+\
+
+_Pricing Framework._ #h(0.5cm) In this model economy, we assume that investors are risk-neutral.  This assumption allows for tractability and to isolate the impact of the design of climate-contingent instruments on default risk when compared to the literature. Therefore, governments choose next-period debt issuance given a price level which will be set by lenders who can purchase or sell bonds at the risk-free rate $r$. Investors are assumed to possess perfect information about the economy’s output process, including the materialization of macroeconomic and hurricane shocks. Therefore, they determine the bond price function $q(b', y, h)$ based on the size of of new debt issuance $b'$, as well as in terms of the observed level of income and hurricane shock at every period, given that the government's incentives to default will depend on all three elements.
+
+\
+
+_Resource Constraints._ #h(0.5cm) Following convention, a negative bond position $b'<0$ implies that the government entered into a debt contract.
+
+In the repayment branch of the model, the government repays its debt and uses borrowing to smooth consumption. As such, the resoucre constraint following a repayment decision is:
+$ c = y dot h + b - q(b', y, h) [b' - (1-psi)b] $
+\
+ 
+In the default branch, the governemnt does not repay its debts, suffers from default output costs, and is excluded from international markets. However, it may still be subject to a hurricane shock. Thereofre, its resource constraint becomes:
+$ c = y^("def") dot h $
+
+\
+
+_Timing of decisions._ #h(0.5cm) Within each period, the government first starts with asset #box[position $b$]. It observes the income and hurricane shock and consequently decides whether to repay or to default on its debt. If the government chooses to repay, then taking $q(b', y, h)$ as given, it selects the optimal size of next-period asset position $b'$ to maximize household utility, and consumption subsequently materializes.
 
 
 
