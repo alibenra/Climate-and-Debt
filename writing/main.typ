@@ -281,7 +281,68 @@ $ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
 where $V^R (b,y,h)$ is the value of repayment and $V^D (y,h)$ is the value of default.
 
 
+#box[We define the functional form of default $d in {0, 1}$ as follows:
+$
+  d(b,y,h) = cases(
+    1 #h(1cm) "if" V^R (b,y,h) < V^D (y,h),
+    0 #h(1cm) "otherwise"
+  )
+$]
 
+\
+
+The value of repayment satisfies the following functional equation:
+$
+  V^R (b,y,h) = max_(b') {y dot h + b - q(b', y, h) [b' - (1-psi)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+$
+In the repayment branch, the government chooses the optimal size of next-period asset position to maximize utility, given the expected value in next period taking into account that the it might still choose between future repayment and future default.
+
+\
+
+The value of default takes into account the fact that defaulting entails an output cost and a temporary financial exclusion from markets. It is given by the following expression:
+$
+  V^D (y,h) = u(y^("def") dot h) + beta #math.bb("E")_(y', h') [theta V^o (0, y', h') + (1-theta) V^D (y', h')]
+$
+where $theta$ is the probability to rejoin markets after exclusion. Therefore, the expected value of continuation depends on the likelihood to exit financial autarky. Current utility of defaulting also takes into account a potential distortion of output in case of a hurricane shock.
+
+\
+
+Following Arellano (2008), the government's default policy can be described through repayment and default sets.
+\
+*Definition 1.* #h(0.5cm) Let $D(b)$ denote the default set which consists of the equilibrium set of exogenous state pairs $ (y, h)$ for which default is optiaml when the government's asset holdings are $b$. Formally:
+$
+  D(b) = {(y, h) in S: V^R (b,y,h) < V^D (y,h)}
+$
+where $S = Y times H $ and refers to the joint state space of all realizable exogenous states. This definition captures the idea that both macroeconmic and disaster shocks jointly affect default incentives. 
+\
+Similarly, let $A(b)$ refer to the complement of the default set, meaning the repayment set covering the joint sets $(y,h)$ for which repayment is optimal given an asset position $b$. Formally:
+$
+  A(b) = {(y, h) in S: V^R (b,y,h) >= V^D (y,h)}
+$
+
+The equilibrium default set are related to the functional form fo default as follow:
+- If the default set is empty for a given $b'$ such that $D(b')=∅$, then for all joint realizable exogenous states, $d(b', y', h') = 0$
+- If the default set covers the entire joint support for all realizable exogenous states for a given $b'$, such that $D(b')=S$, then $d(b', y', h') = 1$
+
+\
+
+_Bond Pricing Equation_ #h(0.5cm) Assuming risk-neutral investors with discount rate $r$, the bond price satisfies investors' zero-profit condition. It rakes the following form:
+$
+  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [underbrace((1 - d(b', y', h')) dot 1, 1^("st") "term" ) + underbrace((1 - d(b', y', h')) dot (1 - psi) dot q(b'', y', y'), 2^("nd") "term" )]
+$
+
+It equals the expected discounted value of the next-period coupon payment (first term) and the next-period resale value of the asset (second term), both conditional on no default. It is interesting to notice that if $psi = 1$, the asset would be priced like a one-period bond. 
+
+\
+*Definition 2.* _Recursive Equilibrium_ #h(0.5cm)
+
+_ The  recursive equilibrium for a sivereign default model with hurricane risk is defined as the of value functions $V^o (b,y,h)$, $V^R (b,y,h)$, and $V^D (y,h)$, as well as the set of policy functions for consumption $c(b, y, h)$, government next-period asset position #box[$b'(b, y, h)$], default sets $D(b)$, and price schedule $q(b', y, h)$, such that: _
+
+-  _Given all policy functions, household consumption  $c(b, y, h)$ satisfies the resource constraints_
+
+-  _Given the bond price schedule $q(b', y, h)$, next-period asset position #box[$b'(b, y, h)$], the default sets $D(b')$, and the associated default rule $d(b', y', h')$ solve the dynamic programming problem  _
+
+- _Given all policy functions, the bond price function $q(b', y, h)$ satisfies the lenders' zero-profit condition_
 
 \
 
@@ -295,6 +356,43 @@ where $V^R (b,y,h)$ is the value of repayment and $V^D (y,h)$ is the value of de
 = Quantitative Evaluation
 \
 
+
+== Simulation Results - Baseline
+
+This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
+
+=== Risk-Neutral Models
+#include "../output/group_sim_RN.typ"
+
+#image("../graphs/BondSchedule_Benchmark_RN.png", width: 70%)
+#image("../graphs/BS_Comparison_RN.png", width: 100%)
+#image("../graphs/BS_CAT_Share_RN.png", width: 100%)
+
+=== Welfare Gains
+
+Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+
+#include "../output/welfare_gains.typ"
+#image("../graphs/Welfare_vs_CAT_Share_RN.png", width: 70%)
+
+== Simulation Results - Climate Change
+
+=== Risk-Neutral Models
+#include "../output/group_sim_RN_climate.typ"
+
+#image("../graphs/BondSchedule_Benchmark_RN_Climate.png", width: 70%)
+#image("../graphs/BS_Comparison_RN_Climate.png", width: 100%)
+#image("../graphs/BS_CAT_share_RN_Climate.png", width: 100%)
+
+=== Welfare Gains
+
+Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+
+#include "../output/welfare_gains_climate.typ"
+#image("../graphs/Welfare_vs_CAT_Share_Climate_RN.png", width: 70%)
+
+
+  
 
 
 
