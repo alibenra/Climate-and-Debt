@@ -263,12 +263,22 @@ $ c = y^("def") dot h $
 
 _Timing of decisions._ #h(0.5cm) Within each period, the government first starts with asset #box[position $b$]. It observes the income and hurricane shock and consequently decides whether to repay or to default on its debt. If the government chooses to repay, then taking $q(b', y, h)$ as given, it selects the optimal size of next-period asset position $b'$ to maximize household utility, and consumption subsequently materializes.
 
-
-
 \
 
 = Recursive Formulation
 \
+
+We define a recursive equilibrium in which the government may choose to default on its debt. In order to take into account the impact of hurricane shocks on total output and subsequent decisions and policy functions, we augment the state space compared to the standard sovereing default literature to include the hurricane shock state variable $h$. Therefore, state variables are:
+- current bond position $b$ 
+- current realization of the income process $y$
+- current realization of the hurricane shock process $h$
+Given the state space, choice variables include next-period asset position choice for the government $b'$, as well as household #box[consumption $c$]. The equilibrium will be defined by the policy functions associated with the two choice variables, as well as by the bond price #box[schedule $q(b', y, h)$].
+
+\
+
+Let $V^o (b,y,h)$ refer to the general government value function. It represents its ability to choose between default and repayment at the beginning of each period to maximize household welfare. Therefore, $V^o (b,y,h)$ satisfies:
+$ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
+where $V^R (b,y,h)$ is the value of repayment and $V^D (y,h)$ is the value of default.
 
 
 
