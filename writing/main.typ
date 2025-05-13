@@ -348,10 +348,152 @@ _ The  recursive equilibrium for a sivereign default model with hurricane risk i
 
 = Introducing Climate-Resilient Instruments 
 \
+== Debt Pause Clauses (DPCs)
+\
 
+DPCs are activated following a hurricane, only if the cost of damage of the climatic characteristics of the disaster exceed a pre-defined threshold (Centre for Disaster Protection, 2023). This requirement is satisfied by the condition that the multiplicative distortion associated with hurricane shock process at a given period lowers output, which means that $h < 1$. As such, we can define a binary variable which indicates the materialization of hurricane damage as follows:
+$
+  s_H = cases(
+    1 #h(0.5cm) "if" h < 1,
+    0 #h(0.5cm) "if" h = 1
+  )
+$
+\
 
+A pause clause in this framework consists of a deferral of coupon payments by one or two periods, given the pre-agreed upon duration of relief. During the relief period, interest will accrue at contractual rates on the asset position at the risk-free rate $r$ in order to compensate investors during the deferral period. Additionally, all deferrals need to be NPV neutral. In practice, all deferred interest and coupon amounts would be capitalized into principal (Cleary Gottlieb, 2021). In this framework, this dynamic is represented by a shift in the promised cashflow by one or two periods, rescaled by the approriate interest accrual term. 
 
 \
+=== Modeling the cashflow sequence under a DPC contract
+\
+
+For a plain vanilla bond, a bond issued at time $t$ implies a promised cashflow sequence of:
+- *At t+1:* $1$
+- *At t+2:* $1-psi$
+- *At t+3:* $(1-psi)^2$
+- *At t+4:* $(1-psi)^3$
+#h(0.5cm) ...
+
+Under a one-period pause clause contract and assuming the materialization of a hurricane shock at period $t+1$, a bond issued at time $t$ implies a promised cashflow sequence of:
+- *At t+1:* no payment owed due to deferral
+- *At t+2:* $(1+r) times 1$ 
+- *At t+3:* $(1+r) times (1-psi)$
+- *At t+4:* $(1+r) times (1-psi)^2$
+#h(0.5cm) ...
+
+Under a two-period pause clause contract and assuming the materialization of a hurricane shock at period $t+1$, a bond issued at time $t$ implies a promised cashflow sequence of:
+- *At t+1:* no payment owed due to deferral
+- *At t+2:* no payment owed due to deferral
+- *At t+3:* $(1+r) times 1$ 
+- *At t+4:* $(1+r) times (1-psi)$
+#h(0.5cm) ...
+
+To ensure that all both designs are NPV neutral, we can compare the present value of the promised cashflow sequence attached to each bond, assuming an identical intial investment by investors for all three types. Given that lenders are assumed to be risk-neutral and that bond pricing satisfies a zero-profit condition, we assume that the discount rate equals the risk-free rate
+\
+*For a plain vanilla bond*
+$
+  "PV"^("Vanilla") (r) = sum^(infinity)_(j=1) frac((1-psi)^(j-1), (1+r)^j)
+$
+
+#box[*For a one-period pause clause*
+$
+  "PV"^(1"PC") (r) & =  frac(0, 1+r) + frac(1+r, (1+r)^2)  + frac((1+r)(1+psi), (1+r)^3) + frac((1+r)(1+psi)^2, (1+r)^4) +... \
+  & = 0 + frac(1, 1+r)  + frac(1+psi, (1+r)^2) + frac((1+psi)^2, (1+r)^3) + ... \
+  & = sum^(infinity)_(j=1) frac((1-psi)^(j-1), (1+r)^j)
+$]
+
+\
+#box[*For a two-period pause clause*
+$
+  "PV"^(2"PC") (r) & =  frac(0, 1+r) + frac(0, (1+r)^2)  + frac((1+r)^2, (1+r)^3) + frac((1+r)^2(1+psi), (1+r)^4) +... \
+  & = 0 + 0+ frac(1, 1+r)  + frac(1+psi, (1+r)^2) + ... \
+  & = sum^(infinity)_(j=1) frac((1-psi)^(j-1), (1+r)^j)
+$]
+\
+Therefore $ "PV"^("Vanilla") (r) = "PV"^(1"PC") (r) = "PV"^(2"PC") (r) $
+
+This confirms that under risk-neutral pricing, the DPC cashflow sequence outlined above are NPV neutral.
+
+\
+=== DPC resource constraint
+\
+
+In the event of the materialization of a hurricane in a given period, the DPC cashflow sequence imposes no coupon payment. In this framework, this is equivalent to an absence of change in the bond position. Additionally, interest will accrue from the deferred payment. Therefore, the current bond position in a hurricane state is $(1+r)b$ in the absence of a new issuance and in no default states. As such, the next period bond position will be defined as #box[$b' = (1+r)b - i$], where $i >0$ represents new bond issuance. Therefore, the resource constraint in a relief period is defined as follows:
+$
+  c = y dot h + 0 - q(b', y, h)[b' - (1+r)b]
+$
+
+Given the recursive nature of the problem, the same resource constraint will apply in the case of a two-period pause clause.
+
+\
+=== One-Period Debt Pause Clause (1PC)
+\
+
+The general government value function is modified to account for the possibility of alternative repayment branch in the case of a hurricane shock. In the case of a 1PC, let $V^o (b,y,h)$ be defined as:
+$ V^o (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("1PC") (b,y,h), V^D (y,h)} $
+where $V^("1PC") (b,y,h)$ is the value of repayment under a one-pause clause contract. 
+\
+This alternative formulation allows to specify that in the absence of a significant hurricane shock #box[($s_H = 0$ if $h=1$)], the government will be faced with standard choice repayment vs. default choice. However, in the event of a damaging hurricane shock, the government will have to choose between defaulting or continuing repayment under a one-period pause clause contract, whihc implies a period of relief under which no direct payment occurs but interest accrues. The value function under a 1PC can be formally defined as follows:
+$
+  V^("1PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+$
+
+\
+
+Pricing with risk-neutral investors: Given that investors price in the expected dsicounted value of the next-period coupon payment and the next-period resale value of the asset, the 1PC does not effectively modify the functional form of the bond pricing equation. Indeed, aside form a heavier reapyment burden represented in the value function, the next period, assuming no consecutive hurricane, will entail a coupon repayment and the possibility to resell the asset. Therefore, taking into account the fact that $b' = (1+r)b - i$:
+$
+  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [(1 - d(b', y', h')) dot 1 + (1 - d(b', y', h')) dot (1 - psi) dot q(b'', y', y')]
+$
+
+\
+=== Two-Period Debt Pause Clause (1PC)
+\
+
+The 2PC is defined according to similar principles. 
+$ V^o (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("2PC") (b,y,h), V^D (y,h)} $
+where $V^("2PC") (b,y,h)$ is the value of repayment under a two-pause clause contract. 
+
+The key difference is that it is defined recursively through the expected continuation value function of the 1PC, because the government expects a second period of relief, during which no repayment is imposed and interest will accrue again.$
+  V^("2PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("1PC") (b', y', h')]}
+$
+
+$
+  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [(1 - d(b', y', h')) dot (1 + r) dot q(b'', y', y')]
+$
+This is because investors will not expected to received a coupon payment in the next period (another period of relief), but can expect to a resale value compounded by the accrued interest during the first relief period.
+
+While this approach allows for greater tractability of the model, the implementation means that the two-period relief is only guaranteed in expectation, as the state space is not augmented to account for the existence of transition states between hurricane and non-hurricane states during which relief will be imposed on the dynamic process. Consequently, while the one-period pause clause is faithful to the real-world application of the clause, the current implementation of a two-period pause clause only approximates the original structure for tractability reasons, at the cost of underestimating the effective benefits of the clause. However, this still allows to obtain conservative estimates of the benefits of such a design. Future work could augment the state space to precisely track pause duration through an additional hurricane-related state variable.
+
+== Catastrophe Bonds (CAT)
+
+We remain in the case of plain vanilla bonds. So the government value function remains identical to the benchmark model:
+$ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
+
+Resource constraints - Repayment:
+$ c = y dot h + b - q(b', y, h) [b' - (1-psi)b] - Pi_("CAT") dot b_("CAT") dot (1-s_H) + b_("CAT") times s_H $
+
+Resource constraints - Default:
+$ c = y^("def") dot h - Pi_("CAT") dot b_("CAT") dot (1-s_H) + b_("CAT") times s_H $
+
+where:
+$ Pi_("CAT") = frac(1, q_("CAT")) - 1 + r $ 
+and 
+$ b_("CAT") = cases(alpha dot abs(b) #h(0.5cm) "if"  b<0,
+0 #h(1.2cm) "otherwise"
+) $ 
+where $0<alpha<1$, with $alpha=1$ refers to 100% insurance coverage
+
+Note that 
+$
+  q^("CAT") = frac(1, 1+r) dot #math.bb("E")_(y', h') [1 - s_H]
+$
+
+== Welfare computations
+
+\
+
+$
+  Delta = (frac(V(c^("instrument")), V(c^("benchmark"))))^(frac(1, 1-gamma)) - 1
+$
 
 = Quantitative Evaluation
 \
