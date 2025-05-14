@@ -403,7 +403,7 @@ function default_iteration_1P_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
 
         # Now compute e_defrel, the default-adjusted repayment expectation:
         e_defrel = P_x * ((1 .- def_only_pf) .* (1 .- rel_only_pf) .* (1 .+ (1 - delta) .* q_g_pf_zeros) .+
-                  (1 .- def_only_pf) .* rel_only_pf .* (1 .+ (1 - delta).*q_g_rel_pf))
+                  (1 .- def_only_pf) .* rel_only_pf .* ((1 + mu_r).*q_g_rel_pf))
         
         q_g_new = repeat(qrf_vec, 1, N_b_g) .* e_defrel
         q_g_new = max.(0, q_g_new)

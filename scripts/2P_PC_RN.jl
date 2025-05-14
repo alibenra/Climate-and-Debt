@@ -359,13 +359,19 @@ function default_iteration_2P_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta, 
             for i_b in 1:N_b_g
                 q_g_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice[i_x, i_b, :]))
                 q_g_PC2_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice_PC2[i_x, i_b, :]))
+                q_g_PC1_pf[i_x, i_b] = sum(q_g[i_x, :] .* vec(prob_choice_PC1[i_x, i_b, :]))
             end
         end
 
         q_g_pf_zeros = copy(q_g_pf)
         q_g_pf_zeros[isnan.(q_g_pf)] .= 0.0
-        e_defrel = P_x * ((1 .- def_only_pf) .* (1 .- rel_only_pf) .* (1 .+ (1 - delta) .* q_g_pf_zeros) .+
-                          (1 .- def_only_pf) .* rel_only_pf .* (1 + mu_r) .* q_g_PC2_pf)
+
+        e_PC2_notactive = P_x * ((1 .- def_only_pf) .* (1 .- rel_only_pf) .* (1 .+ (1 - delta) .* q_g_pf_zeros) .+
+                                    (1 .- def_only_pf) .* rel_only_pf .* ((1 + mu_r).*q_g_PC2_pf))
+
+        e_PC2_active = P_x * ((1 .- def_only_pf) .* ((1 + mu_r) .* q_g_PC1_pf))
+
+        e_defrel = (1 .- rel_only_pf) .* e_PC2_notactive .+ rel_only_pf .* e_PC2_active
         q_g_new = repeat(qrf_vec, 1, N_b_g) .* e_defrel
         q_g_new = max.(0, q_g_new)
 

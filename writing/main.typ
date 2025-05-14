@@ -167,7 +167,7 @@ where $epsilon^y_t ~^(text("iid")) 𝒩(0, sigma^2_y)$ and $abs(rho)<1$
 
 In this framework, the output depends not only on the income process and the associated exogenous business cycle fluctuations and macoreocnomic shocks, but also on hurricane risk. In order the represent the impact of hurricane risk on output, it is introduced as a multiplicative distortion of income. Effectively, hurricane schok $h_t$ directly scales output each period, such that realized output is:
 $ x_t = y_t dot h_t $
-Formally, the hurricaner shock process is defines as:
+Formally, the hurricane shock process is defines as:
 $ h_t = cases(
   1  #h(3.5cm) "with probability" 1 - pi_H, 
   min{macron(h) dot exp(𝓁_t), 1} #h(0.45cm) "with probability" pi_H
@@ -178,11 +178,35 @@ where:
 - $macron(h) in (0, 1)$ is a scaling constant calibrated to match the empirically observed mean loss conditional on a disaster
 In order to esnure the expected loss factor is properly centered, we impose the normalization $mu_𝓁 = -frac(1, 2)sigma_𝓁^2$, which implies $#math.bb("E") [exp(𝓁_t)] = 1$. The goal of this step is to ensure that $exp(𝓁_t)$ does not to bias $h_t$ upward or downward on average in order to capture the mean hurricane loss entirely by $macron(h)$ to match the empirical average loss. 
 On the other hand, the truncation operator #box[$min{dot,1}$] ensures that hurricane shocks never result in output gains, so that #box[$h_t <= 1$].
-Economically, the truncation operator reflects the fact that even when a hurricane hits, it might not cause observable damage to economic activities and thuis be equal to 1. Additionally, it also reflects the uncertainty revolving around the trigger of climate-contingent instruments. Parametric triggers adopted in many designs of both DPCs and CAT bonds are only activated if a certain threshold is met under very specific criteria (World Bank, 2022). Therefore, even if a rare and major hurricane hits, it may not activate payouts. This conservative modeling approach preserves the log-normal shape of disaster risk while maintaining interpretability and tractability in both standard and contingent debt environments.
+Economically, the truncation operator reflects the fact that even when a hurricane hits, it might not cause observable damage to economic activities, which is captured by $h_t = 1$ even when a hurricane hits with probability $pi_H$. Additionally, it this formulation will also be useful in the extension to climate-contingent instruments, as it could be interpreted to reflect the uncertainty revolving around their trigger. Parametric triggers adopted in many designs of both DPCs and CAT bonds are only activated if a certain threshold is met under very specific criteria (World Bank, 2022). Therefore, even if a rare and major hurricane hits, it may not activate payouts. This conservative modeling approach preserves the log-normal shape of disaster risk while maintaining interpretability and tractability in both standard and contingent debt environments.
+
+Therefore, to clearly signal hurricane states which lead to a trigger of a pause clause or a CAT bond, we define an indicator variable $s_H$ which captures whether hurricane damage is severe enough to lower output in a given period. This aligns with the tyupical trigger structure of climate-contingent instruments, where payouts are activated only if economic damage surpasses a threshold. Importantly, $s_H = 1$ does not occur every time a hurricane hits with probability $pi_H$, but only when it causes output loss. Formally:
+$
+  s_H = cases(
+    1 #h(0.5cm) "if" h < 1,
+    0 #h(0.5cm) "if" h = 1
+  )
+$
+which implies that:
+- if no hurricane occurs, then $h_t = 1$ and $s_H = 0$;
+- if a hurricane occurs and results in no observable output loss, then $h_t = 1$ and $s_H = 0$;
+- if a hurricane occurs and reduces output, then $h_t < 1$ and $s_H = 1$;
+Using the law ot total probabiloty, the expected value of $s_H$ will thus be:
+$
+  #math.bb("E") [s_H] =  #math.bb("P") (s_H = 1) = pi_H dot #math.bb("P") (h_t < 1 | "hurricane")
+$
+By the defintion of the $min$ operator, $h_t < 1$ only if:
+$
+  macron(h) dot exp(𝓁_t) < 1 ⇔ 𝓁_t < - log(macron(h))
+$
+So
+$
+  #math.bb("E") [s_H] = pi_H dot #math.bb("P") ( 𝓁_t < - log(macron(h)))
+$
 
 \
 
-In each period of the model, the government makes two key decisions. 
+_Government decisions._ #h(0.5cm) In each period of the model, the government makes two key decisions. 
 1. First, it chooses whether to default or not. The choice of default has two major implications for the sovereign
   - If default is chosen, the government suffers from an associated cost on output, represented by an endowment loss function. Following Arellano (2008), the default cost on output function takes an asymmetric form:
   $ y^("def") = cases(
@@ -246,22 +270,23 @@ As such, for a one-period coupon bond, $psi = 1$ and $D=1$, while for long-term 
 
 \
 
-_Pricing Framework._ #h(0.5cm) In this model economy, we assume that investors are risk-neutral.  This assumption allows for tractability and to isolate the impact of the design of climate-contingent instruments on default risk when compared to the literature. Therefore, governments choose next-period debt issuance given a price level which will be set by lenders who can purchase or sell bonds at the risk-free rate $r$. Investors are assumed to possess perfect information about the economy’s output process, including the materialization of macroeconomic and hurricane shocks. Therefore, they determine the bond price function $q(b', y, h)$ based on the size of of new debt issuance $b'$, as well as in terms of the observed level of income and hurricane shock at every period, given that the government's incentives to default will depend on all three elements.
+_Timing of decisions._ #h(0.5cm) Within each period, the government first starts with asset #box[position $b$]. It observes the income and hurricane shock and consequently decides whether to repay or to default on its outstanding debt. If the government chooses to repay, then taking the bond price function $q(b', y)$ as given, it selects the optimal level of next-period asset position $b'$ to maximize household utility. Consumption subsequently materializes based on the chosen debt issuance and realized output.
+
+\
+
+_Pricing Framework._ #h(0.5cm) In this model economy, we assume that investors are risk-neutral, allowing for tractability and enabling the analysis to focus on how climate-contingent debt instruments influence default risk. Therefore, governments choose next-period debt issuance given a price level which is set by lenders who can purchase or sell bonds at the risk-free #box[rate $r$]. Investors are assumed to possess perfect information about the economy’s output process, including the materialization of exogenous macroeconomic and hurricane shocks. However, since hurricane shocks are i.i.d. and do not inform the likelihood of future disaster realizations, bond prices do not need to be conditioned on current hurricane shock $h$. Instead, the bond price function is defined as $q(b', y)$, reflecting that future default probabilities depend on the distribution of next-period output, which influenced by today's income level $y$. Thus, while hurricane shocks affect current output and utility, they do not enter the pricing equation, which is fully characterized by the chosen next-period asset position $b'$ and the persistent macroeconomic shock $y$.
 
 \
 
 _Resource Constraints._ #h(0.5cm) Following convention, a negative bond position $b'<0$ implies that the government entered into a debt contract.
 
 In the repayment branch of the model, the government repays its debt and uses borrowing to smooth consumption. As such, the resoucre constraint following a repayment decision is:
-$ c = y dot h + b - q(b', y, h) [b' - (1-psi)b] $
+$ c = y dot h + b - q(b', y) [b' - (1-psi)b] $
 \
  
-In the default branch, the governemnt does not repay its debts, suffers from default output costs, and is excluded from international markets. However, it may still be subject to a hurricane shock. Thereofre, its resource constraint becomes:
+In the default branch, the governemnt does not repay its debts, suffers from default output costs, and is excluded from international markets. However, it may still be subject to a hurricane shock. Therefore, its resource constraint becomes:
 $ c = y^("def") dot h $
 
-\
-
-_Timing of decisions._ #h(0.5cm) Within each period, the government first starts with asset #box[position $b$]. It observes the income and hurricane shock and consequently decides whether to repay or to default on its debt. If the government chooses to repay, then taking $q(b', y, h)$ as given, it selects the optimal size of next-period asset position $b'$ to maximize household utility, and consumption subsequently materializes.
 
 \
 
@@ -272,7 +297,7 @@ We define a recursive equilibrium in which the government may choose to default 
 - current bond position $b$ 
 - current realization of the income process $y$
 - current realization of the hurricane shock process $h$
-Given the state space, choice variables include next-period asset position choice for the government $b'$, as well as household #box[consumption $c$]. The equilibrium will be defined by the policy functions associated with the two choice variables, as well as by the bond price #box[schedule $q(b', y, h)$].
+Given the state space, choice variables include next-period asset position choice for the government $b'$, as well as household #box[consumption $c$]. The equilibrium will be defined by the policy functions associated with the two choice variables, as well as by the bond price #box[schedule $q(b', y)$].
 
 \
 
@@ -293,7 +318,7 @@ $]
 
 The value of repayment satisfies the following functional equation:
 $
-  V^R (b,y,h) = max_(b') {y dot h + b - q(b', y, h) [b' - (1-psi)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+  V^R (b,y,h) = max_(b') {y dot h + b - q(b', y) [b' - (1-psi)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
 $
 In the repayment branch, the government chooses the optimal size of next-period asset position to maximize utility, given the expected value in next period taking into account that the it might still choose between future repayment and future default.
 
@@ -328,41 +353,62 @@ The equilibrium default set are related to the functional form fo default as fol
 
 _Bond Pricing Equation_ #h(0.5cm) Assuming risk-neutral investors with discount rate $r$, the bond price satisfies investors' zero-profit condition. It rakes the following form:
 $
-  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [underbrace((1 - d(b', y', h')) dot 1, 1^("st") "term" ) + underbrace((1 - d(b', y', h')) dot (1 - psi) dot q(b'', y', y'), 2^("nd") "term" )]
+  q(b', y) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [underbrace((1 - d(b', y', h')) dot 1, 1^("st") "term" ) + underbrace((1 - d(b', y', h')) dot (1 - psi) dot q(b'', y'), 2^("nd") "term" )]
 $
 
-It equals the expected discounted value of the next-period coupon payment (first term) and the next-period resale value of the asset (second term), both conditional on no default. It is interesting to notice that if $psi = 1$, the asset would be priced like a one-period bond. 
+It equals the expected discounted value of the next-period coupon payment (first term) and the next-period resale value of the asset (second term), both conditional on no default. It is interesting to notice that if $psi = 1$, the asset would be priced like a one-period bond.  The expectation is conditional on today's income $y$, as $y'$ follows an AR(1) process. On the other hand, since hurricane shocks $h$ are i.i.d., they do not condition the forecast.
 
 \
 *Definition 2.* _Recursive Equilibrium_ #h(0.5cm)
 
-_ The  recursive equilibrium for a sivereign default model with hurricane risk is defined as the of value functions $V^o (b,y,h)$, $V^R (b,y,h)$, and $V^D (y,h)$, as well as the set of policy functions for consumption $c(b, y, h)$, government next-period asset position #box[$b'(b, y, h)$], default sets $D(b)$, and price schedule $q(b', y, h)$, such that: _
+_ The  recursive equilibrium for a sivereign default model with hurricane risk is defined as the of value functions $V^o (b,y,h)$, $V^R (b,y,h)$, and $V^D (y,h)$, as well as the set of policy functions for consumption $c(b, y, h)$, government next-period asset position #box[$b'(b, y, h)$], default sets $D(b)$, and price schedule $q(b', y)$, such that: _
 
 -  _Given all policy functions, household consumption  $c(b, y, h)$ satisfies the resource constraints_
 
 -  _Given the bond price schedule $q(b', y, h)$, next-period asset position #box[$b'(b, y, h)$], the default sets $D(b')$, and the associated default rule $d(b', y', h')$ solve the dynamic programming problem  _
 
-- _Given all policy functions, the bond price function $q(b', y, h)$ satisfies the lenders' zero-profit condition_
+- _Given all policy functions, the bond price function $q(b', y)$ satisfies the lenders' zero-profit condition_
 
 \
 
 = Introducing Climate-Resilient Instruments 
 \
-== Debt Pause Clauses (DPCs)
-\
 
-DPCs are activated following a hurricane, only if the cost of damage of the climatic characteristics of the disaster exceed a pre-defined threshold (Centre for Disaster Protection, 2023). This requirement is satisfied by the condition that the multiplicative distortion associated with hurricane shock process at a given period lowers output, which means that $h < 1$. As such, we can define a binary variable which indicates the materialization of hurricane damage as follows:
+DPCs and CAT bond payouts are activated following a hurricane, only if the cost of damage of the climatic characteristics of the disaster exceed a pre-defined threshold (Centre for Disaster Protection, 2023; Cleary Gottlieb, 2022). This requirement is satisfied by the condition that the multiplicative distortion associated with hurricane shock process at a given period lowers output, which means that $h < 1$. As such, the materialization of hurricane damage will be given by an indicator variable $s_H$.
+
+To clearly signal hurricane states which lead to a trigger of a pause clause or a CAT bond, we define an indicator variable $s_H$ which captures whether hurricane damage is severe enough to lower output in a given period. This aligns with the tyupical trigger structure of climate-contingent instruments, where payouts are activated only if economic damage surpasses a threshold. Importantly, $s_H = 1$ does not occur every time a hurricane hits with probability $pi_H$, but only when it causes output loss. Formally:
 $
   s_H = cases(
     1 #h(0.5cm) "if" h < 1,
     0 #h(0.5cm) "if" h = 1
   )
 $
+which implies that:
+- if no hurricane occurs, then $h_t = 1$ and $s_H = 0$;
+- if a hurricane occurs and results in no observable output loss, then $h_t = 1$ and $s_H = 0$;
+- if a hurricane occurs and reduces output, then $h_t < 1$ and $s_H = 1$;
+Using the law ot total probabiloty, the expected value of $s_H$ will thus be:
+$
+  #math.bb("E") [s_H] =  #math.bb("P") (s_H = 1) = pi_H dot #math.bb("P") (h_t < 1 | "hurricane")
+$
+By the defintion of the $min$ operator, $h_t < 1$ only if:
+$
+  macron(h) dot exp(𝓁_t) < 1 ⇔ 𝓁_t < - log(macron(h))
+$
+So
+$
+  #math.bb("E") [s_H] = pi_H dot #math.bb("P") ( 𝓁_t < - log(macron(h)))
+$
+
+\
+
+== Debt Pause Clauses (DPCs)
 \
 
 A pause clause in this framework consists of a deferral of coupon payments by one or two periods, given the pre-agreed upon duration of relief. During the relief period, interest will accrue at contractual rates on the asset position at the risk-free rate $r$ in order to compensate investors during the deferral period. Additionally, all deferrals need to be NPV neutral. In practice, all deferred interest and coupon amounts would be capitalized into principal (Cleary Gottlieb, 2021). In this framework, this dynamic is represented by a shift in the promised cashflow by one or two periods, rescaled by the approriate interest accrual term. 
 
 \
+
 === Modeling the cashflow sequence under a DPC contract
 \
 
@@ -428,38 +474,61 @@ Given the recursive nature of the problem, the same resource constraint will app
 === One-Period Debt Pause Clause (1PC)
 \
 
-The general government value function is modified to account for the possibility of alternative repayment branch in the case of a hurricane shock. In the case of a 1PC, let $V^o (b,y,h)$ be defined as:
-$ V^o (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("1PC") (b,y,h), V^D (y,h)} $
+The general government value function is modified to account for the possibility of alternative repayment branch in the case of a signficant hurricane shock. In the event of the materialization of hurricane damage, the goverment will automatically be set on the course of a relief period as specified in the DPC contract. As such, in the case of a 1PC, the government will be in either of two situations at the beginning of each period. If the pause clause trigger is not activated ($s_H = 0$), then the government will face the baseline choice between standard value of repayment and the value of default. However, if the pause clause trigger is activated ($s_H = 1$), then the government will choose between the value of entering a relief state in which payments are pause for one period before resuming in the next, and the standard value of default. Formally, let $V^("o1") (b,y,h)$ be defined as:
+$ V^("o1") (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("1PC") (b,y,h), V^D (y,h)} $
 where $V^("1PC") (b,y,h)$ is the value of repayment under a one-pause clause contract. 
+
 \
+
 This alternative formulation allows to specify that in the absence of a significant hurricane shock #box[($s_H = 0$ if $h=1$)], the government will be faced with standard choice repayment vs. default choice. However, in the event of a damaging hurricane shock, the government will have to choose between defaulting or continuing repayment under a one-period pause clause contract, whihc implies a period of relief under which no direct payment occurs but interest accrues. The value function under a 1PC can be formally defined as follows:
 $
-  V^("1PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+  V^("1PC") (b,y,h) = max_(b') {y dot h - q(b', y)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("o1") (b', y', h')]}
 $
 
 \
 
-Pricing with risk-neutral investors: Given that investors price in the expected dsicounted value of the next-period coupon payment and the next-period resale value of the asset, the 1PC does not effectively modify the functional form of the bond pricing equation. Indeed, aside form a heavier reapyment burden represented in the value function, the next period, assuming no consecutive hurricane, will entail a coupon repayment and the possibility to resell the asset. Therefore, taking into account the fact that $b' = (1+r)b - i$:
+Pricing with risk-neutral investors: Given that investors price in the expected discounted value of the next-period coupon payment and the next-period resale value of the asset, the 1PC creates two different pricing branches. In the expectation of no significant hurricane damage in the next period ($s_H ' = 0$), the pricing structure will follow the standard payoff expectations. However, in the expectation of a pause clause activation in the next period ($s_H ' = 1$), investors will price in an absence of next-period coupon repayment and a next-period resale value of the asset which will be rescaled to account for the accrual of interest. Therefore:
 $
-  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [(1 - d(b', y', h')) dot 1 + (1 - d(b', y', h')) dot (1 - psi) dot q(b'', y', y')]
+  q(b', y) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
 $
+
+This pricing framework assumes that investos have full information over the hurricane shock process, and can thus correctly incorporate its probabilistic nature into the expectation.
 
 \
 === Two-Period Debt Pause Clause (1PC)
 \
 
 The 2PC is defined according to similar principles. 
-$ V^o (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("2PC") (b,y,h), V^D (y,h)} $
+$ V^("o2") (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("2PC") (b,y,h), V^D (y,h)} $
 where $V^("2PC") (b,y,h)$ is the value of repayment under a two-pause clause contract. 
 
 The key difference is that it is defined recursively through the expected continuation value function of the 1PC, because the government expects a second period of relief, during which no repayment is imposed and interest will accrue again.$
   V^("2PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("1PC") (b', y', h')]}
 $
 
+There are tow possibilities to take into account when pricing: 
+\
+Clause not activated ($s_H = 0$)
+
 $
-  q(b', y, h) = frac(1, 1+r) dot #math.bb("E")_(y', h') [(1 - d(b', y', h')) dot (1 + r) dot q(b'', y', y')]
+  q(b', y; s_H = 0) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
 $
-This is because investors will not expected to received a coupon payment in the next period (another period of relief), but can expect to a resale value compounded by the accrued interest during the first relief period.
+
+Clause activated ($s_H = 1$)
+
+$
+  q(b', y; s_H = 1) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
+$
+
+Therefore: 
+$
+  q(b', y) = (1-s_H) dot q(b', y; s_H = 0) + s_H dot q(b', y; s_H = 1)
+$
+
+This is because if the clause is activated ($s_H = 1$), investors will not expected to receive a coupon payment in the next period (another period of relief), but can expect to price a resale value compounded by the accrued interest during the first relief period.
+We assume that a consecutive hurricane will not trigger a new pause clause, as the current one is already active.
+
+\
 
 While this approach allows for greater tractability of the model, the implementation means that the two-period relief is only guaranteed in expectation, as the state space is not augmented to account for the existence of transition states between hurricane and non-hurricane states during which relief will be imposed on the dynamic process. Consequently, while the one-period pause clause is faithful to the real-world application of the clause, the current implementation of a two-period pause clause only approximates the original structure for tractability reasons, at the cost of underestimating the effective benefits of the clause. However, this still allows to obtain conservative estimates of the benefits of such a design. Future work could augment the state space to precisely track pause duration through an additional hurricane-related state variable.
 
