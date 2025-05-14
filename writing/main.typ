@@ -374,7 +374,7 @@ _ The  recursive equilibrium for a sivereign default model with hurricane risk i
 = Introducing Climate-Resilient Instruments 
 \
 
-DPCs and CAT bond payouts are activated following a hurricane, only if the cost of damage of the climatic characteristics of the disaster exceed a pre-defined threshold (Centre for Disaster Protection, 2023; Cleary Gottlieb, 2022). This requirement is satisfied by the condition that the multiplicative distortion associated with hurricane shock process at a given period lowers output, which means that $h < 1$. As such, the materialization of hurricane damage will be given by an indicator variable $s_H$.
+DPCs and CAT bond payouts are activated following a hurricane, only if the cost of damage (or the climatic characteristics) of the disaster exceed a pre-defined threshold (Centre for Disaster Protection, 2023; Cleary Gottlieb, 2022). This requirement is satisfied by the condition that the multiplicative distortion associated with the hurricane shock process at a given period lowers output, which means that $h < 1$. As such, the materialization of hurricane damage will be given by an indicator variable $s_H$.
 
 To clearly signal hurricane states which lead to a trigger of a pause clause or a CAT bond, we define an indicator variable $s_H$ which captures whether hurricane damage is severe enough to lower output in a given period. This aligns with the tyupical trigger structure of climate-contingent instruments, where payouts are activated only if economic damage surpasses a threshold. Importantly, $s_H = 1$ does not occur every time a hurricane hits with probability $pi_H$, but only when it causes output loss. Formally:
 $
@@ -384,20 +384,20 @@ $
   )
 $
 which implies that:
-- if no hurricane occurs, then $h_t = 1$ and $s_H = 0$;
-- if a hurricane occurs and results in no observable output loss, then $h_t = 1$ and $s_H = 0$;
-- if a hurricane occurs and reduces output, then $h_t < 1$ and $s_H = 1$;
-Using the law ot total probabiloty, the expected value of $s_H$ will thus be:
+- if no hurricane occurs, then $h = 1$ and $s_H = 0$;
+- if a hurricane occurs and results in no observable output loss, then $h = 1$ and $s_H = 0$;
+- if a hurricane occurs and reduces output, then $h < 1$ and $s_H = 1$;
+Using the law ot total probability, the expected value of $s_H$ will thus be:
 $
-  #math.bb("E") [s_H] =  #math.bb("P") (s_H = 1) = pi_H dot #math.bb("P") (h_t < 1 | "hurricane")
+  #math.bb("E") [s_H] =  #math.bb("P") (s_H = 1) = pi_H dot #math.bb("P") (h < 1 | "hurricane")
 $
-By the defintion of the $min$ operator, $h_t < 1$ only if:
+By the defintion of the $min$ operator, $h < 1$ only if:
 $
-  macron(h) dot exp(𝓁_t) < 1 ⇔ 𝓁_t < - log(macron(h))
+  macron(h) dot exp(𝓁) < 1 #h(0.5cm) ⇔ #h(0.5cm) 𝓁 < - log(macron(h))
 $
 So
 $
-  #math.bb("E") [s_H] = pi_H dot #math.bb("P") ( 𝓁_t < - log(macron(h)))
+  #math.bb("E") [s_H] = pi_H dot #math.bb("P") ( 𝓁 < - log(macron(h)))
 $
 
 \
@@ -429,11 +429,12 @@ Under a one-period pause clause contract and assuming the materialization of a h
 Under a two-period pause clause contract and assuming the materialization of a hurricane shock at period $t+1$, a bond issued at time $t$ implies a promised cashflow sequence of:
 - *At t+1:* no payment owed due to deferral
 - *At t+2:* no payment owed due to deferral
-- *At t+3:* $(1+r) times 1$ 
-- *At t+4:* $(1+r) times (1-psi)$
+- *At t+3:* $(1+r)^2 times 1$ 
+- *At t+4:* $(1+r)^2 times (1-psi)$
 #h(0.5cm) ...
 
-To ensure that all both designs are NPV neutral, we can compare the present value of the promised cashflow sequence attached to each bond, assuming an identical intial investment by investors for all three types. Given that lenders are assumed to be risk-neutral and that bond pricing satisfies a zero-profit condition, we assume that the discount rate equals the risk-free rate
+To ensure that both DPC designs are NPV neutral, we can compare the present value of the promised cashflow sequence attached to each bond, assuming an identical intial investment by lenders for all three types. Given that lenders are assumed to be risk-neutral and that bond pricing satisfies a zero-profit condition, we assume that the discount rate equals the risk-free rate.
+
 \
 *For a plain vanilla bond*
 $
@@ -457,13 +458,13 @@ $]
 \
 Therefore $ "PV"^("Vanilla") (r) = "PV"^(1"PC") (r) = "PV"^(2"PC") (r) $
 
-This confirms that under risk-neutral pricing, the DPC cashflow sequence outlined above are NPV neutral.
+This confirms that under risk-neutral pricing, both DPC designs are NPV neutral.
 
 \
 === DPC resource constraint
 \
 
-In the event of the materialization of a hurricane in a given period, the DPC cashflow sequence imposes no coupon payment. In this framework, this is equivalent to an absence of change in the bond position. Additionally, interest will accrue from the deferred payment. Therefore, the current bond position in a hurricane state is $(1+r)b$ in the absence of a new issuance and in no default states. As such, the next period bond position will be defined as #box[$b' = (1+r)b - i$], where $i >0$ represents new bond issuance. Therefore, the resource constraint in a relief period is defined as follows:
+In the event of the materialization of hurricane damage in a given period, the DPC cashflow sequence imposes no coupon payment. In this framework, this is equivalent to not decreasing the bond position by coupon-decay rate $psi$. Additionally, interest will accrue from the deferred payment. Therefore, the current bond position in a hurricane state is $(1+r)b$ in the absence of a new issuance and in no default states. As such, the next period bond position will be defined as #box[$b' = (1+r)b - i$], where $i >0$ represents new bond issuance. Therefore, the resource constraint in a relief period is defined as follows:
 $
   c = y dot h + 0 - q(b', y, h)[b' - (1+r)b]
 $
@@ -474,63 +475,81 @@ Given the recursive nature of the problem, the same resource constraint will app
 === One-Period Debt Pause Clause (1PC)
 \
 
-The general government value function is modified to account for the possibility of alternative repayment branch in the case of a signficant hurricane shock. In the event of the materialization of hurricane damage, the goverment will automatically be set on the course of a relief period as specified in the DPC contract. As such, in the case of a 1PC, the government will be in either of two situations at the beginning of each period. If the pause clause trigger is not activated ($s_H = 0$), then the government will face the baseline choice between standard value of repayment and the value of default. However, if the pause clause trigger is activated ($s_H = 1$), then the government will choose between the value of entering a relief state in which payments are pause for one period before resuming in the next, and the standard value of default. Formally, let $V^("o1") (b,y,h)$ be defined as:
+The key modification of the benchmark model in the case of a 1PC relies in accounting for the activation of a pause clause in case of signficant hurricane damage. The general government value function is modified to account for the possibility of an alternative repayment branch in the case of a signficant hurricane shock. In the event of the materialization of hurricane damage, the goverment will automatically be set on the course of a relief period as specified in the DPC contract. As such, in the case of a 1PC, the government will be in either of two situations at the beginning of each period. If the pause clause trigger is not activated ($s_H = 0$), then the government will face the baseline choice between the standard value of repayment and the value of default. However, if the pause clause trigger is activated ($s_H = 1$), then the government will choose between the the standard value of default and the value of entering a relief state. In the pause state interest accrues on the bond’s resale value despite the suspension of coupon payments, which are expected to resume in the following period. Formally, let $V^("o1") (b,y,h)$ be defined as:
 $ V^("o1") (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("1PC") (b,y,h), V^D (y,h)} $
 where $V^("1PC") (b,y,h)$ is the value of repayment under a one-pause clause contract. 
 
 \
-
-This alternative formulation allows to specify that in the absence of a significant hurricane shock #box[($s_H = 0$ if $h=1$)], the government will be faced with standard choice repayment vs. default choice. However, in the event of a damaging hurricane shock, the government will have to choose between defaulting or continuing repayment under a one-period pause clause contract, whihc implies a period of relief under which no direct payment occurs but interest accrues. The value function under a 1PC can be formally defined as follows:
+ The value function under a 1PC can be formally defined as follows:
 $
   V^("1PC") (b,y,h) = max_(b') {y dot h - q(b', y)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("o1") (b', y', h')]}
 $
 
 \
 
-Pricing with risk-neutral investors: Given that investors price in the expected discounted value of the next-period coupon payment and the next-period resale value of the asset, the 1PC creates two different pricing branches. In the expectation of no significant hurricane damage in the next period ($s_H ' = 0$), the pricing structure will follow the standard payoff expectations. However, in the expectation of a pause clause activation in the next period ($s_H ' = 1$), investors will price in an absence of next-period coupon repayment and a next-period resale value of the asset which will be rescaled to account for the accrual of interest. Therefore:
+_1PC pricing with risk-neutral investors._ #h(0.5cm) Investors value sovereign bonds according to their expected discounted payoff in the next period. As such, in the presence of a one-period pause clause, which is probabilistically activated by a climate shock, there are two pricing branches to consider. 
+- The first branch, or *no activation branch*, relates to the case in which no clause activation is expected in the next period ($s_H ' = 0$). In this case, investors price the bond according to the standard repayment expectations. The price will this reflect both the next-period coupon and the expected resale value of the bond (or which summarizes the entire stream of expected future coupon repayments).
+- The second branch, or *activation branch*, represents the anticipation of a clause activation in the next period ($s_H ' = 1$). In this scenario, investors price the bond under the expectation that no coupon will be paid, and that interest will accrue on the resale value over the pause period. As such, only the resale value of the bond will be priced, compounded at the risk-free rate.
+Formally, the bond price satisfies:
+
 $
-  q(b', y) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
+  q(b', y) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & underbrace((1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')], "No Future DPC Activation Branch")\ & + underbrace(s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')], "Future DPC Activation Branch")]
 $
 
-This pricing framework assumes that investos have full information over the hurricane shock process, and can thus correctly incorporate its probabilistic nature into the expectation.
+This pricing framework assumes that investos have full information over the hurricane shock process, and can thus correctly incorporate its probabilistic nature into the expectation. Therefore, investors form rational expectations over the probability of a DPC activation and internalize the accrual of interest on the resale value in the next-period.
 
 \
-=== Two-Period Debt Pause Clause (1PC)
+=== Two-Period Debt Pause Clause (2PC)
 \
 
-The 2PC is defined according to similar principles. 
+The framework of the 2PC adopts the same general principles as the extension for a 1PC. As for a design with only one relief period, the government choice value function for a 2PC, $V^("o2") (b,y,h)$, will reflect two potential states. A state in which no pause clause is triggered ($s_H = 0$), in which case the government will choose between the standard value of repayment and the value of default, and a state in which a pause clause is activated ($s_H = 1$). In the DPC state, the goverment will have to choose between the standard value of default and the value of entering a two-period relief state. Formally:
 $ V^("o2") (b,y,h) = (1-s_H) dot max{V^R (b,y,h), V^D (y,h)} + s_H dot max{V^("2PC") (b,y,h), V^D (y,h)} $
 where $V^("2PC") (b,y,h)$ is the value of repayment under a two-pause clause contract. 
 
-The key difference is that it is defined recursively through the expected continuation value function of the 1PC, because the government expects a second period of relief, during which no repayment is imposed and interest will accrue again.$
+\
+
+The main distinction between the 1PC framework and the 2PC relies in the the definition of the value of the relief period in a two-pause clause contract. In a dynamic programming framework, $V^("2PC") (b,y,h)$  will be defined recursively through the expected continuation value function of the 1PC, because the government expects a second period of relief, during which no repayment is imposed and interest will accrue again. This defintion implies the following simplifying assumption: as part of the 2PC contract, no default is possible during the second relief period. As captured by the definition of $V^("o2") (b,y,h)$, the government can only choose to default when a hurricane first hits (as soon as the clause is about to be activated), or in the standard case when no hurricane damage is recorded. However, once the government chooses not to default and to adopt the value of a 2PC contract, no default is allowed in the following period of relief. As such, the value of a 2PC contract is formally defined as:
+$
   V^("2PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("1PC") (b', y', h')]}
 $
 
-There are tow possibilities to take into account when pricing: 
-\
-Clause not activated ($s_H = 0$)
-
-$
-  q(b', y; s_H = 0) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
-$
-
-Clause activated ($s_H = 1$)
-
-$
-  q(b', y; s_H = 1) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & (1-s_H ') dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]\ & + s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')]]
-$
-
-Therefore: 
-$
-  q(b', y) = (1-s_H) dot q(b', y; s_H = 0) + s_H dot q(b', y; s_H = 1)
-$
-
-This is because if the clause is activated ($s_H = 1$), investors will not expected to receive a coupon payment in the next period (another period of relief), but can expect to price a resale value compounded by the accrued interest during the first relief period.
-We assume that a consecutive hurricane will not trigger a new pause clause, as the current one is already active.
-
 \
 
-While this approach allows for greater tractability of the model, the implementation means that the two-period relief is only guaranteed in expectation, as the state space is not augmented to account for the existence of transition states between hurricane and non-hurricane states during which relief will be imposed on the dynamic process. Consequently, while the one-period pause clause is faithful to the real-world application of the clause, the current implementation of a two-period pause clause only approximates the original structure for tractability reasons, at the cost of underestimating the effective benefits of the clause. However, this still allows to obtain conservative estimates of the benefits of such a design. Future work could augment the state space to precisely track pause duration through an additional hurricane-related state variable.
+_2PC pricing with risk-neutral investors._ #h(0.5cm) Similarly to the case of a 1PC, investors value sovereign bonds according to their expected discounted payoff in the next period and to the probabilistic activation of the clause by a climate shock. However, investors will also have to take into account the fact that pricing a 2PC will depend on the current state of activation of the clause. Indeed, in the case of a current damaging hurricane shock ($s_H = 1$), investors will expect that relief will be imposed in the next period, regardless of the hurricane status. On the other hand, if no current hurricane shock is registered, then no pause clause is currently triggered, which means that investors may expect that the next period could either be a relief period or a repayment period. For further clarity, let's distinguish between these two possibilities.
+
+*1. No currently active pause clause ($s_H = 0$).*  
+\
+In this scenario, investors can anticipate two potential pricing branches, similarly to the 1PC pricing scenario. The first one implies no activation of the pause clause in the next period ($s_H ' = 0$), in which case, investors will price the expected next-period coupon payment and the expected resale value of the bond in a decaying-coupon LT bond framework. In the second case in which a pause clause is expected in the next period ($s_H ' = 1$), investors will price the bond under the expectation that no coupon will be paid and that interest will accrue on the resale value of the bond. Formally:
+
+$
+  q(b', y; s_H = 0) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & underbrace((1-s_H ') dot (1 - d(b', y', h')) dot [1 + (1 - psi) dot q(b'', y')], "No Future DPC Activation Branch")\ & + underbrace(s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')], "Future DPC Activation Branch")]
+$
+\
+
+*2. The pause clause is currently active and triggerred ($s_H = 1$).* 
+\
+In the case where a pause clause has been triggered in the current period, investors anticipate that the next period will also be a relief period, as implied by the two-period pause clause contract, which mandates two consecutive periods of suspension. As such, regardless of whether a damaging hurricane shock will materialize ($s_H ' = 1$) or not ($s_H ' = 1$), investors will price the bond under the expectation that no coupon will be serviced and that interest will accumulate on the bond’s resale value. Additionally, this pricing framework assumes that a subsequent hurricane will not trigger a new pause clause, as the current one is already active. #box[Therefore, the pricing under $s_H = 1$ is defined as follows:
+
+$
+  q(b', y; s_H = 1) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [ & underbrace((1-s_H ') dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')], "No Future DPC Activation Branch")\ & + underbrace(s_H ' dot (1 - d(b', y', h')) dot [0 + (1+r)dot q(b'', y')], "Future DPC Activation Branch")]
+$]
+
+\
+Both cases can then be joined in a general pricing equation for a two-period pause clause, taking into account the distinction between between pricing anticipations in the case of no current DPC activation, as well as in the scenario of an already undertaken 2PC. Formally:
+$
+  q(b', y) = underbrace((1-s_H) dot q(b', y; s_H = 0), "No Current Active DPC") + underbrace(s_H dot q(b', y; s_H = 1), "Currently Active DPC")
+$
+
+It is worth noting that the resale value in the next period, $q(b'', y')$, remains uniformly defined across current shock scenarios. This is because, regardless of today's hurricane state, the recursive pricing structure ensures that next-period investors will condition their pricing on the realized hurricane state, thus adjusting their expectations accordingly to account for clause activation or not.
+
+\
+
+
+_Discussion of key assumption._ #h(0.5cm) While the 2PC framework captures key features of a two-period relief contract, it does so without explicitly augmenting the state space to track the pause duration. In particular, once the government activates a 2PC in response to a hurricane, the model does not record that the economy transitions into a second, predetermined period of relief. Instead, this continuation is enforced implicitly through the recursive structure.
+
+As a result, the two-period relief is only guaranteed in expectation, since the model lacks a dedicated transition state that distinguishes the second pause period from standard periods. Consequently, while the one-period pause clause is faithful to the real-world application of the clause, the current implementation of a two-period pause clause only approximates the original structure for tractability reasons, at the cost of underestimating the effective benefits of the clause. However, this still allows to obtain conservative estimates of the benefits of such a design. Future work could augment the state space to precisely track pause duration through an additional hurricane-related state variable.
+
+\
 
 == Catastrophe Bonds (CAT)
 
