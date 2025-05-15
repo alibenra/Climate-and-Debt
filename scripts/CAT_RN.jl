@@ -249,8 +249,8 @@ function default_iteration_CAT_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta,
     # Now lift into 3D
     xi_state = reshape(repeat(xi_vec, outer=(1, N_b_g, N_b_g)), N_x, N_b_g, N_b_g)
     # 3) compute CAT‐notional array
-    B_cat_state = f_CAT .* b_state_grid
-    B_cat_mat = f_CAT .* (xi_vec * b_g_vec)       
+    B_cat_state = f_CAT .* abs.(b_state_grid)
+    B_cat_mat = f_CAT .* (xi_vec * abs.(b_g_vec))       
     Yaut = h_vec_2sh .* y_vec_2sh 
 
     #########################################################################
@@ -340,7 +340,7 @@ function default_iteration_CAT_RN!(; sigma_ey, rho_y, beta, wc_par_asymm, delta,
             temp_exp = dropdims(temp_exp, dims=3)
             v_good_guess_new = eulgam * ev_rho .+ v_good_guess_noev .+ ev_rho .* log.(temp_exp)
             # Compute the Value in the event of choice of default (autarky) with lambda probability of re-entry
-            CatFlow = xi_vec * (f_CAT .* b_g_vec) .- (1 .- xi_vec) * (Π_cat .* f_CAT .* b_g_vec)
+            CatFlow = xi_vec * (f_CAT .* abs.(b_g_vec)) .- (1 .- xi_vec) * (Π_cat .* f_CAT .* abs.(b_g_vec))
             c_aut = Yaut * ones(1,N_b_g) .+ CatFlow
             c_aut .= clamp.(c_aut, eps(), wc_par_asymm*gdp_mean)
             util_aut    = (1/(1-gamma_c)) .* c_aut.^(1-gamma_c)
@@ -614,7 +614,7 @@ function main_country_CAT_RN(country::String)
     nx_sim = replace(nx_sim, NaN => 0.0)
     c_sim1 = y_sim .* h_sim .- nx_sim
     xi_sim   = (h_sim .< 1)
-    B_cat_sim= f_CAT .* b_g_mean
+    B_cat_sim= f_CAT .* abs.(b_g_mean)
     c_sim    = c_sim1
          .+ xi_sim .* B_cat_sim         # CAT payout
          .- (1 .- xi_sim) .* (Π_cat .* B_cat_sim)  

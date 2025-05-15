@@ -318,7 +318,7 @@ $]
 
 The value of repayment satisfies the following functional equation:
 $
-  V^R (b,y,h) = max_(b') {y dot h + b - q(b', y) [b' - (1-psi)b] + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+  V^R (b,y,h) = max_(b') {u(y dot h + b - q(b', y) [b' - (1-psi)b]) + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
 $
 In the repayment branch, the government chooses the optimal size of next-period asset position to maximize utility, given the expected value in next period taking into account that the it might still choose between future repayment and future default.
 
@@ -482,7 +482,7 @@ where $V^("1PC") (b,y,h)$ is the value of repayment under a one-pause clause con
 \
  The value function under a 1PC can be formally defined as follows:
 $
-  V^("1PC") (b,y,h) = max_(b') {y dot h - q(b', y)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("o1") (b', y', h')]}
+  V^("1PC") (b,y,h) = max_(b') {u(y dot h - q(b', y)[b' - (1+r)b]) + beta #math.bb("E")_(y', h')[V^("o1") (b', y', h')]}
 $
 
 \
@@ -510,7 +510,7 @@ where $V^("2PC") (b,y,h)$ is the value of repayment under a two-pause clause con
 
 The main distinction between the 1PC framework and the 2PC relies in the the definition of the value of the relief period in a two-pause clause contract. In a dynamic programming framework, $V^("2PC") (b,y,h)$  will be defined recursively through the expected continuation value function of the 1PC, because the government expects a second period of relief, during which no repayment is imposed and interest will accrue again. This defintion implies the following simplifying assumption: as part of the 2PC contract, no default is possible during the second relief period. As captured by the definition of $V^("o2") (b,y,h)$, the government can only choose to default when a hurricane first hits (as soon as the clause is about to be activated), or in the standard case when no hurricane damage is recorded. However, once the government chooses not to default and to adopt the value of a 2PC contract, no default is allowed in the following period of relief. As such, the value of a 2PC contract is formally defined as:
 $
-  V^("2PC") (b,y,h) = max_(b') {y dot h - q(b', y, h)[b' - (1+r)b] + beta #math.bb("E")_(y', h')[V^("1PC") (b', y', h')]}
+  V^("2PC") (b,y,h) = max_(b') {u(y dot h - q(b', y, h)[b' - (1+r)b]) + beta #math.bb("E")_(y', h')[V^("1PC") (b', y', h')]}
 $
 
 \
@@ -565,20 +565,20 @@ Another fundamental difference lies in the fact that CAT bonds are not issued by
 
 Overall, this framework replicates the structure of a standard insurance contract, through which the insured party, the government, makes regular premium payments during normal times in exchange for compensation in disaster states. 
 
-CAT bonds are thus modeled exclusively through this insurance logic, without the explicit representation of the SPV or the World Bank as financial intermediaries. Importantly, CAT bonds do not contirbute to the government's outstanding debt stock. They are best understood as one-period insurance contracts which are renewed each period and imply either a payout or a premium payment depending on the realization of the disaster trigger. The premium is defined as the spread of the CAT bond and is priced at the beginning of each period. 
+CAT bonds are thus modeled exclusively through this insurance logic, without the explicit representation of the SPV or the World Bank as financial intermediaries. Importantly, CAT bonds do not contirbute to the government's outstanding debt stock. They are best understood as one-period insurance contracts which are renewed each period and imply either a payout or a premium payment depending on the realization of the disaster trigger. This repeated renewal structure serves as a tractable proxy for multi-year CAT bond programs observed in practice. The premium is defined as the spread of the CAT bond and is priced at the beginning of each period. 
 
-Finally, it is worth emphasizing that the CAT/insurance contract also applies in the default states. As such, investors perceive CAT bonds as instruments uncorrelated with the sovereign’s macroeconomic fundamentals and price their premiums based solely on the exogenous hurricane risk. This reflects a simplifying assumption aligned with the fact that CAT bonds are not part of the sovereign's debt stock and are therefore not subject to default or restructuring negociations. Moreover, empirical evidence suggests that sovereigns are unlikely to default on obligations involving multilateral institutions such as the World Bank (Wicht, 2025; Munoz, 2023). 
+Finally, it is worth emphasizing that the CAT/insurance contract also applies in the default states. As such, investors perceive CAT bonds as instruments uncorrelated with the sovereign’s macroeconomic fundamentals and price their premiums based solely on the exogenous hurricane risk. This reflects a simplifying assumption aligned with the fact that CAT bonds are not part of the sovereign's debt stock and are therefore not subject to default or restructuring negociations. Moreover, empirical evidence suggests that sovereigns are unlikely to default on obligations involving multilateral institutions such as the World Bank (Wicht, 2025; Munoz, 2023).
 
-Nevertheless, a potential extension of this framewrok could allow for default on CAT bonds premiums during periods of sovereing default. Such a modification would affect the valuation of CAT bonds by investors, as it would imply a pricing framework that also incorporates the sovereign’s macroeconomic fundamentals, thereby undermining their role as risk-diversifying assets designed to be uncorrelated with sovereign risk as in the current framework.
+Nevertheless, the assumption that CAT bond flows continue during autarky may overstate their hedging benefits, particularly in severe economic crises where a sovereign might renege on CAT bond obligations alongside default on conventional debt. This opens the door to an important extension of the framework that would allow for sovereign default on CAT bond premium payments during periods of debt distress. Such a modification would fundamentally alter the valuation of CAT bonds by investors, as it would imply a pricing framework that also incorporates the sovereign’s macroeconomic fundamentals. This, in turn, would undermine CAT bonds' appeal as risk-diversifying assets that, under the current setup, are designed to be uncorrelated with sovereign risk.
 
 
 \
 === CAT Bond modeling framework
 \
 
-_CAT bond premium._ #h(0.5cm) Premiums are defined by the spread of a CAT bond, $Pi^("CAT")$, which is determined at issuance (OECD, 2024). The spread corresponds to the difference between the yield on the country's CAT bond and the risk-free rate. The country-specific CAT bond yield is calculated as the inverse of the bond’s discounted price, $1 + r^("CAT") = frac(1, q^("CAT"))$. Formally:
+_CAT bond premium._ #h(0.5cm) Premium rates are defined by the spread of a CAT bond, $Pi^("CAT")$, which is determined at issuance (OECD, 2024). The spread corresponds to the difference between the yield on the country's CAT bond and the risk-free rate. The country-specific CAT bond yield is calculated as the inverse of the bond’s discounted price, $1 + r^("CAT") = frac(1, q^("CAT"))$. Formally:
 $
- Pi^("CAT") & = r^("CAT") - r  = frac(1, q^("CAT")) - 1 + r 
+ Pi^("CAT") & = r^("CAT") - r  = frac(1, q^("CAT")) - 1 - r 
 $
 
 Given that investors are risk-neutral and that CAT bonds are uncorrelated with sovereign fundamentals, the CAT bond price can be modeled directly as the expected loss, corresponding to the full principal, based solely on the probability of the trigger event #footnote[In a model with risk-averse investors, CAT bond pricing would also take into account lenders' risk premia in addition to the measurement of expected loss]. As a one-period bond, CAT bond price represents the discounted expected payoff of investors given the probability of an activation of a damaging hurricane trigger. 
@@ -588,40 +588,53 @@ $
 
 Note that, in this framework, CAT bonds are modeled as a sequence of independent one-period contracts, effectively approximating the multi-period structure of CAT bonds observed in practice. This simplifies implementation while retaining the core insurance logic. Additonally, since hurricane shocks are assumed to be exogenous and empirically calibrated to match observed hurricane frequency and average loss severity, the expectation $#math.bb("E") [s_H]$ remains constant across periods in the baseline framework. As a result, the CAT bond premium is also constant, varying only when the frequency or intensity of hurricane-related losses is altered. This possibility is explored in the climate change scenario analysis presented in the quantitative evaluation section of the paper.
 
-\
+It is also important to highlight the fact that the effective premium paid by the government corresponds to the product of the premium rate $Pi^("CAT")$ and the CAT bond amount issued $B^("CAT") (b)$, such that $"Premium" = Pi^("CAT") dot B^("CAT") (b)$. Premiums are only paid in non-trigger periods ($s_H = 0$).
 
-_Resource constraints._ #h(0.5cm) Key CAT bond flows are represented directly in the resource constraints. Benchmark model resource constraints are modified to accoutn for the fact that government pays premium when no hurrican trigger is activted ($s_H = 0$), and received payout when it is ($s_H = 1$)
+The size of the CAT bond $B^("CAT") (b)$ is expressed relative to the government's debt stock. This allows to capture the extent to which sovereign obligations are insured against hurricane shocks. For instance, setting $B^("CAT") (b) = b$ would imply full coverage of the asset position, meaning that in the event of a damaging hurricane ($s_H = 1$), the government receives a payout equal to its debt service obligations through the CAT relief mehcnaism. This modeling choice allows the CAT bond to effectively hedge debt repayment risk in hurricane states, at the cost of proportionally higher premium payments in non-trigger periods ($s_H = 0$). Formally:
 
-
-
-
-\
-
-_Recursive formulation._ #h(0.5cm)
-
-We remain in the case of plain vanilla bonds. So the government value function remains identical to the benchmark model:
-$ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
-
-Resource constraints - Repayment:
-$ c = y dot h + b - q(b', y, h) [b' - (1-psi)b] - Pi_("CAT") dot b_("CAT") dot (1-s_H) + b_("CAT") times s_H $
-
-Resource constraints - Default:
-$ c = y^("def") dot h - Pi_("CAT") dot b_("CAT") dot (1-s_H) + b_("CAT") times s_H $
-
-where:
-$ Pi_("CAT") = frac(1, q_("CAT")) - 1 + r $ 
-and 
-$ b_("CAT") = cases(alpha dot abs(b) #h(0.5cm) "if"  b<0,
-0 #h(1.2cm) "otherwise"
-) $ 
+$ 
+  B^("CAT") (b) = alpha dot abs(b) 
+$ 
 where $0<alpha<1$, with $alpha=1$ refers to 100% insurance coverage
 
-Note that 
+
+\
+
+_Resource constraints._ #h(0.5cm) The key financial flows associated with CAT bonds are embedded directly into the model's resource constraints. Specifically, the benchmark resource constraints are both modified to reflect that the government pays a premium when no hurricane trigger is activated ($s_H = 0$), and received a payout when the trigger is activated ($s_H = 1$). Formally, resource constraints are defined as follow:
+- Repayment branch
+$ 
+  c = y dot h + b - q(b', y) [b' - (1-psi)b] - Pi^("CAT") dot B^("CAT") (b)dot (1-s_H) + B^("CAT") (b)dot s_H
 $
-  q^("CAT") = frac(1, 1+r) dot #math.bb("E")_(y', h') [1 - s_H]
+where $B^("CAT") (b)$ represents the amount of CAT bond issued
+
+- Default branch
+$ 
+  c = y^("def") dot h - Pi^("CAT") dot B^("CAT") (b) dot (1-s_H) + B^("CAT") (b) dot s_H
 $
 
-regarding alpha, the level of insurnace coverage:
+\
+
+_Recursive formulation._ #h(0.5cm) Since CAT bonds are parallel instruments not directly issued by the government, they do not fundamentally alter the recursive structure of the government’s optimization problem, nor the associated bond pricing equation. Their only effect is to modify the level of resources available to the government across states of the world. As such, except for a modification of the resource constraints, the model remains within the plain-vanilla long-term bond framework, and the government's value functions keep the same structure as in the benchmark model. Formally:
+$ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
+where:
+- The value of repayment $V^R (b,y,h)$ satisfies the following functional equation:
+$
+  V^R (b,y,h) = max_(b') {& u(y dot h + b - q(b', y) [b' - (1-psi)b] - Pi^("CAT") dot B^("CAT") (b) dot (1-s_H) + B^("CAT") (b) dot s_H) \ & + beta #math.bb("E")_(y', h')[V^o (b', y', h')]}
+$
+- The value of default $V^D (y,h)$ satisfies the following functional equation:
+$
+  V^D (y,h) = & u(y^("def") dot h - Pi^("CAT") dot B^("CAT") (b) dot (1-s_H) + B^("CAT") (b) dot s_H) \ & + beta #math.bb("E")_(y', h') [theta V^o (0, y', h') + (1-theta) V^D (y', h')]
+$
+
+#box[Similarly, the bond pricing equation remains unchanged from the benchmark model, as investors continue to price the same plain-vanilla sovereign bonds. CAT bonds do not modify the bond's payment structure and therefore do not affect its valuation under risk-neutral pricing.
+$
+  q(b', y) = frac(1, 1+r) dot #math.bb("E")_(y', h' | y) [underbrace((1 - d(b', y', h')) dot 1, 1^("st") "term" ) + underbrace((1 - d(b', y', h')) dot (1 - psi) dot q(b'', y'), 2^("nd") "term" )]
+$
+
+where, conditional on no default:
+- the first term represents the discounted expectation of the next-period coupon payment
+- the second terms captures the discounted expecation of the next-period resale value of the asset  
+]
 
 
 
