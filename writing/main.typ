@@ -461,7 +461,7 @@ Therefore $ "PV"^("Vanilla") (r) = "PV"^(1"PC") (r) = "PV"^(2"PC") (r) $
 This confirms that under risk-neutral pricing, both DPC designs are NPV neutral.
 
 \
-=== DPC resource constraint
+=== The DPC resource constraint
 \
 
 In the event of the materialization of hurricane damage in a given period, the DPC cashflow sequence imposes no coupon payment. In this framework, this is equivalent to not decreasing the bond position by coupon-decay rate $psi$. Additionally, interest will accrue from the deferred payment. Therefore, the current bond position in a hurricane state is $(1+r)b$ in the absence of a new issuance and in no default states. As such, the next period bond position will be defined as #box[$b' = (1+r)b - i$], where $i >0$ represents new bond issuance. Therefore, the resource constraint in a relief period is defined as follows:
@@ -552,25 +552,52 @@ As a result, the two-period relief is only guaranteed in expectation, since the 
 \
 
 == Catastrophe Bonds (CAT)
-
 \
 
-We now turn to the case of CAT bonds, another class of climate-contingent instruments, which unlike pause clauses, transfer natural disaster risk to the lenders through an insurance-like structure. CAT bonds are essentially distinct instruments standard sovereign bonds. While DPCs are embedded directly into sovereing bonds, thus directly modifying their coupon payment structure in the event of a disaster, CAT bonds are issued in parallel and do not modify the cashflow of the plain-vanilla bonds instruments explored in the benchmark model. 
+=== Discussion of core assumptions
+\
 
-Another fundamental difference lies in the fact that CAT bonds are not oissued by the government itself. In fact, invesors purchase these instruments directly from a third-party institution, which could either be an SPV or the World Bank acting as the issuer on behalf of the sovereign. As such, the government's involvement in CAT bonds is limited to a set of insurance-like financial flows:
+We now turn to the case of CAT bonds, another class of climate-contingent instruments, which unlike pause clauses, transfer natural disaster risk to the lenders through an insurance-like mechanism. CAT bonds are essentially distinct instruments from standard sovereign bonds. While DPCs are embedded directly into sovereing bonds, directly modifying their coupon payment structure in the event of a disaster, CAT bonds are issued in parallel and do not modify the cashflow of the plain-vanilla bonds instruments explored in the benchmark model. 
+
+Another fundamental difference lies in the fact that CAT bonds are not issued by the government itself. In fact, invesors purchase these instruments directly from a third-party institution, which could either be an SPV or the World Bank acting as the issuer on behalf of the sovereign. As such, the government's involvement in CAT bonds is limited to a set of insurance-like financial flows:
 - In periods where the hurricane damage threshold is not breached, the government pays a regular premium to investors set at issuance.
-- In states where the hurricane trigger is activated, investors forfeit the principal, and the government receives the corresponding payout and does not pay any premium in that period.
+- In states where the hurricane trigger is activated, investors forfeit the principal, while the government receives the corresponding payout and is exempt from paying any premium for that period.
 
-Overall, this framework replicates the structure of a standard insurance contract, through which the insured party, in this case the government, makes regular premium payments during normal times in exchange for compensation in disaster states. 
+Overall, this framework replicates the structure of a standard insurance contract, through which the insured party, the government, makes regular premium payments during normal times in exchange for compensation in disaster states. 
 
-It is important to note that CAT bonds are thus modeled exclusively through this insurance logic, without explicitly representing the SPV or the World Bank as financial intermediaries. Importantly, CAT bonds do not contirbute to the government's outstanding debt stock. They are best understoof as one-period insurance contracts that are renewed each period and either imply a payout or a premium payment depending on the realization of the disaster trigger. The premium is defined as the spread of the CAT bond and is priced at the beginning of each period. 
+CAT bonds are thus modeled exclusively through this insurance logic, without the explicit representation of the SPV or the World Bank as financial intermediaries. Importantly, CAT bonds do not contirbute to the government's outstanding debt stock. They are best understood as one-period insurance contracts which are renewed each period and imply either a payout or a premium payment depending on the realization of the disaster trigger. The premium is defined as the spread of the CAT bond and is priced at the beginning of each period. 
 
-Finally, it is worth emphasizing that the CAT/insurance contract also applies in the default states. As such, investors perceive CAT bonds as instruments uncorrelated with the sovereign’s macroeconomic fundamentals and price their premiums based solely on exogenous hurricane risk. This reflects a simmplifying assumption aligned with the fact that CAT bonds are not part of the sovereign's debt stock and therefore not subject to default or restructuring negociations. Moreover, empirical evidence suggests that sovereigns are unlikely to default on obligations involving multilateral institutions such as the World Bank (Wicht, 2025; Munoz, 2023). 
+Finally, it is worth emphasizing that the CAT/insurance contract also applies in the default states. As such, investors perceive CAT bonds as instruments uncorrelated with the sovereign’s macroeconomic fundamentals and price their premiums based solely on the exogenous hurricane risk. This reflects a simplifying assumption aligned with the fact that CAT bonds are not part of the sovereign's debt stock and are therefore not subject to default or restructuring negociations. Moreover, empirical evidence suggests that sovereigns are unlikely to default on obligations involving multilateral institutions such as the World Bank (Wicht, 2025; Munoz, 2023). 
 
-Nevertheless, a potential extension of this framewrok could allow for default on CAT bonds premiums during periods of sovereing default. Such a modification would affect the valuation of CAT bonds by investors, as it would imply a pricing framework that also incorporates the sovereign’s macroeconomic fundamentals, thereby undermining their role as risk-diversifying assets designed to be uncorrelated with sovereign risk in the current framework.
+Nevertheless, a potential extension of this framewrok could allow for default on CAT bonds premiums during periods of sovereing default. Such a modification would affect the valuation of CAT bonds by investors, as it would imply a pricing framework that also incorporates the sovereign’s macroeconomic fundamentals, thereby undermining their role as risk-diversifying assets designed to be uncorrelated with sovereign risk as in the current framework.
 
 
 \
+=== CAT Bond modeling framework
+\
+
+_CAT bond premium._ #h(0.5cm) Premiums are defined by the spread of a CAT bond, $Pi^("CAT")$, which is determined at issuance (OECD, 2024). The spread corresponds to the difference between the yield on the country's CAT bond and the risk-free rate. The country-specific CAT bond yield is calculated as the inverse of the bond’s discounted price, $1 + r^("CAT") = frac(1, q^("CAT"))$. Formally:
+$
+ Pi^("CAT") & = r^("CAT") - r  = frac(1, q^("CAT")) - 1 + r 
+$
+
+Given that investors are risk-neutral and that CAT bonds are uncorrelated with sovereign fundamentals, the CAT bond price can be modeled directly as the expected loss, corresponding to the full principal, based solely on the probability of the trigger event #footnote[In a model with risk-averse investors, CAT bond pricing would also take into account lenders' risk premia in addition to the measurement of expected loss]. As a one-period bond, CAT bond price represents the discounted expected payoff of investors given the probability of an activation of a damaging hurricane trigger. 
+$
+  q^("CAT") = frac(1, 1+r) dot #math.bb("E") [1 - s_H]
+$
+
+Note that, in this framework, CAT bonds are modeled as a sequence of independent one-period contracts, effectively approximating the multi-period structure of CAT bonds observed in practice. This simplifies implementation while retaining the core insurance logic. Additonally, since hurricane shocks are assumed to be exogenous and empirically calibrated to match observed hurricane frequency and average loss severity, the expectation $#math.bb("E") [s_H]$ remains constant across periods in the baseline framework. As a result, the CAT bond premium is also constant, varying only when the frequency or intensity of hurricane-related losses is altered. This possibility is explored in the climate change scenario analysis presented in the quantitative evaluation section of the paper.
+
+\
+
+_Resource constraints._ #h(0.5cm) Key CAT bond flows are represented directly in the resource constraints. Benchmark model resource constraints are modified to accoutn for the fact that government pays premium when no hurrican trigger is activted ($s_H = 0$), and received payout when it is ($s_H = 1$)
+
+
+
+
+\
+
+_Recursive formulation._ #h(0.5cm)
 
 We remain in the case of plain vanilla bonds. So the government value function remains identical to the benchmark model:
 $ V^o (b,y,h) = max{V^R (b,y,h), V^D (y,h)} $
@@ -598,7 +625,7 @@ regarding alpha, the level of insurnace coverage:
 
 
 
-== Welfare computations
+== Welfare evaluation framework
 
 \
 
@@ -608,36 +635,37 @@ $
 
 = Quantitative Evaluation
 \
+== Parametrization
 
 
-== Simulation Results - Baseline
+== Results - Baseline
 
 This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
 
-=== Risk-Neutral Models
+=== Simulations
 #include "../output/group_sim_RN.typ"
 
 #image("../graphs/BondSchedule_Benchmark_RN.png", width: 70%)
 #image("../graphs/BS_Comparison_RN.png", width: 100%)
 #image("../graphs/BS_CAT_Share_RN.png", width: 100%)
 
-=== Welfare Gains
+=== Welfare Analysis
 
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
 #include "../output/welfare_gains.typ"
 #image("../graphs/Welfare_vs_CAT_Share_RN.png", width: 70%)
 
-== Simulation Results - Climate Change
+== Results - Climate Change Scenario
 
-=== Risk-Neutral Models
+=== Simulations
 #include "../output/group_sim_RN_climate.typ"
 
 #image("../graphs/BondSchedule_Benchmark_RN_Climate.png", width: 70%)
 #image("../graphs/BS_Comparison_RN_Climate.png", width: 100%)
 #image("../graphs/BS_CAT_share_RN_Climate.png", width: 100%)
 
-=== Welfare Gains
+=== Welfare Analysis
 
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
