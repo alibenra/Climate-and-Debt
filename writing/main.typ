@@ -861,11 +861,19 @@ For low of output states, however, the effects on bond prices across all instrum
 
 \
 
+@Figure4 represents a sensitivity analysis for CAT bonds. It illustrates how varying the size of the CAT bond affects bond prices across output states. While the differences are very subtle, two observations can be made. First, larger CAT bond shares seem to lead to slightly higher bond prices, particularly at moderate debt levels. This suggests that at low levels of indebtedness, a higher proportion of debt insured against hurricane risk marginally enhances fiscal relisience in the eyes if investors, thus slightly reducing perveived default risk. Second, at higher levels of indebtedness, there is limited dispersion across specifications. CAT bonds do not seem to improve borrowing conditions when debt is already high, likely because the additional insurance feature contributes to an already elevated fiscal burden in non-hurricane states.
+
 
 #figure(
   image("../graphs/BS_CAT_Share_RN.png", width: 125%),
   caption: [Bond Price Schedule - Varying CAT Bond Size.],
 ) <Figure4>
+
+\
+
+We now turn to a discussion of the quantitative predictions of the model. The simulated moments reported in @Table3 are computed from a 10,000-period simulation of the model. The table compares the benchmark economy with five alternative specifcations incorporating climate-contingent instruments (two DPC designs and three CAT bond specifcations). 
+
+First, the results confirm a successful calibration of the benchmark model. The benchmark model yields an average spread of approximately 517 basis points and a debt-to-GDP ratio of 49%, both jointly targeted through the calibration of the discount factor $beta$ and the output cost $lambda$. These simulated moments closely align with the empirical moments reported in Mallucci (2022), namely an average spread of 519 basis points and a 49% of debt-to-GDP ratio. Additionally, the simulation delivers a default frequency of 4.5%, which remains close to the 5.1% default risk measured empirically (Mallucci, 2022).
 
 \
 
@@ -878,10 +886,22 @@ For low of output states, however, the effects on bond prices across all instrum
 
 \
 
+The introduction of DPC instruments (1P PC and 2P PC) increases both spreads and default frequencies, while marginally raising debt leves. This reflects the fact that postponing payments is associated with a higher borrowing capacity during relief periods, which consequently may raise investor concerns about long-term solvency. In contrast, CAT bonds generally reduce both spreads and default frequency, particularly at high levels of coverage of the debt stock. In fact, the CAT bond of a size equivalent to a 100% of the debt stock yields the lowest spread, close to 300 basis points below the benchmark average spread, and the lowest default frequency at 4.1%, suggesting improved fiscal reslience and reduced borrowing costs. 
+
+Overall, while DPCs may provide intertemporal flexibility and temporarily expand fiscal space, they appear to do so at the cost of higher borrowing costs and increased default risk. By comparison, CAT bonds, partilarly of the largest size, seem to offer a more effective framework for reducing sovereign risk and improving financing conditions under hurricane risk. 
+
+\
+
 === Welfare Analysis
 \
 
-Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+Table 5 and the accompanying Figure 5 reflect the fact that all instruments yield welfare losses relative to the benchmark. This suggest that none of the instruments succeeds in improving household consumption under hurricane risk. However, the maginitude of these losses varies signficantly across instruments. 
+
+The DPC designs result in the largest welfare losses, reflecting higher borrowing patterns associated with higher spreads and default risks, all of which reduce overall consumption smoothing by raising borrowing costs. 
+
+
+
+\
 
 #figure(
   kind: "table",
@@ -890,6 +910,11 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
   caption: [Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
 ) <Table5>
 
+\
+
+In contrast, CAT bonds exhibit much smaller welfare losses, especially for the smallest CAT issuance size. This pattern highlights a key advantage of the CAT bond design: by directly offsetting hurricane shocks through payouts without distorting sovereign bond payment structures, CAT bonds improve resilience while minimizing intertemporal trade-offs. Neverthelss, they still imply welfare losses as the premium paid at every state reduces the amount of resources allocated to long-term household consumption. It is worth noting that the intermediate size of the CAT bond delivers the worst welfare outcome among the three CAT instruments, likely due to the fact that as it implies large premiums costs with relatively modest payouts in hurricane states compared to the largest CAT bond.
+
+Finally, the attentive reader will note that these results might only be valid under risk-neutrality of investors and the assumption of a lack of correlation between CAT premium payments and default decisions. Future research could explore such a specification. 
 \
 
 #figure(
