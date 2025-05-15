@@ -673,8 +673,31 @@ A positive value of $Delta$ indicates that climate-contingent instruments impove
 
 = Quantitative Evaluation
 \
-== Parametrization
 
+This model is solved numerically using value function iteration over a discretized state space that includes income, hurricane shocks, and long-term debt. Default probabilities are updated iteratively through a soft-max operator, which smooths the choice between repayment and default to ensure numerical stability. Bond prices are computed in a fixed-point loop, consistent with investors’ expectations of future payoffs given default incentives. After convergence, the model is simulated using a Markov chain that tracks the joint evolution of income and hurricane shocks, allowing for the computation of time series moments over simulated paths.
+
+_Soft-max choice rule_ #h(0.5cm) To ensure the convergence of the value function iteration, I adopt a soft-max operator as in Mallucci (2022), who follows the quantitative approach implemented by Dvorkin et al. (2021). The approach consists in incorporating Type-1 Extreme Value shocks, first introduce by McFadden (1977), into the goverment's optimization problem. The goal of these shocks is to smooth the government's policy functions and to mitigate sharp feedback loops between borrowing decisions and the endogenous price function, to ensure convergence in a long-term and state-contingent default framework. 
+Specifically, the government's decision over future debt levels is modeled as a multinomial discrete choice, where each option is slightly perturbed by an additive i.i.d. extreme value shock. Let $V^("nd") (y, h, b; b'_j)$ refer to the continuation value associated with choosing the next-period debt level $b'$, conditional on repayment. Then, the probability $pi_j (y, h, b)$ of selecting a particular level $b'_j$ from the debt grid is given by:
+$
+  pi_j (y, h, b) = frac(exp((V^("nd")_j (y, h, b; b'_j)) / rho_("EV")), sum^(N_b)_("s=1") exp((V^("nd")_s (y, h, b; b'_s))/ rho_("EV")))
+$
+where $rho_("EV") > 0$ approaximates the deterministic choice as it tends to 0. The probabilistic rule we use reflects the idea that small changes in fundamentals or expectations might lead the government to pick slightly different debt levels, as is often observed in practice, and not necessarily the one with the highest value. Therefore, the probability function gives more weight to options with higher expected value, but all options retain a strictly positive probability of being chosen. As the smoothing parameter  $rho_("EV")$ goes to 0, the choice becomes nearly deterministic and the government will almost always pick the option with the highest value.
+\
+Each continuation value $V^("nd") (y, h, b; b'_j)$ is defined as:
+$
+  V^("nd") (y, h, b; b'_j) = u(y dot h - b + q(y, b'_j)dot [b'_j - (1- delta)b]) + beta #math.bb("E")_(y',h', b'_j) [V(y', h', b'_j)]
+$
+where $V$ is the governemnt's value function between default and no-default.
+Another soft-max rule is used regarding the decision to default. The probability of default is given by:
+$
+  d^*(y,h,b) = frac(exp((V^d (y,h)) / rho_("EV")), exp((V^d (y,h)) /rho_("EV")) + exp((V^("nd") (y,h,b)) /rho_("EV")))
+$
+
+where $V^d (y,h)$ is the value of default. Probabilistic default also allows to ensure that policy and values functions are smooth, thus facilitating the convergence of the numerical solution.
+
+\
+
+== Parametrization
 
 == Results - Baseline
 
