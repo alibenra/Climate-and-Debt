@@ -43,14 +43,14 @@
   ]
 )
 \
-\
 
-Five years following the onset of the COVID-19 crisis, the world remains on the brink of a debt crisis. The pandemic has left a lasting impact on the fiscal and debt profiles of low- and middle- income countries (LMICs). Emergency policy responses during the pandemic and economic recovery plans in the following years have significantly expanded government spending, pushing sovereigns to increasingly rely on external debt to meet their financing needs, precisely as global interest rates skyrocketed in 2022 and 2023. As a result, LMICs now face substantially higher debt levels than in the previous decade and struggle with an increasingly challenging debt servicing burden, hindering the achievement of their development roadmaps 
+
+This paper investigates the role of climate-contingent sovereign debt instruments in improving borrowing conditions, debt sustainability, and welfare in disaster-prone economies. Using a quantitative sovereign default model with hurricane risk calibrated on Jamaican data, we evaluate the performance of disaster pause clauses (DPCs) and catastrophe (CAT) bonds under both baseline and intensifying climate change scenarios. While all instruments expand borrowing capacity, DPCs lead to higher spreads and default risk due to delayed repayments and a subsequent rise in debt stock levels. In contrast, CAT bonds, particularly large CAT issuances with full coverage of the debt stock, reduce spreads and default probabilities by directly mitigating fiscal losses from disaster. Under baseline conditions, both classes of instruments result in welfare losses, either due to increased borrowing costs or premium payments that crowd out consumption. However, under an intensified climate change scenario, these losses are reduced, with the largest CAT bond issuance even yielding a net welfare gain. This result suggests that as the frequency and severity of disasters increase, climate-contingent instruments will become increasingly more relevant for policymakers in disaster-prone economies.
 
 \
 \
 \
-*Keywords*: Sovereign debt, Debt sustainability, Natural disasters, Climate resilience, Fiscal relief, Default Risk, Debt Pause Clause, Catastrophe Bonds, Hurricane risk, International lenders
+*Keywords*: Sovereign debt, Debt sustainability, Natural disasters, Climate resilience, Fiscal relief, Borrowing costs, Default risk, Debt Pause Clause, Catastrophe Bonds, Hurricane risk, International lenders
 
 #pagebreak()
 
