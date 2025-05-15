@@ -162,8 +162,8 @@ The periodic utility of households displays a constrant coefficient of relative 
 $ u(c_t) = frac(c_t^(1-gamma), 1-gamma) $ \
 
 _Total Output Process._ #h(0.5cm) In each period, households recieve a stoachastic stream of consumption goods $y_t$, which will represent the governent's endowment. The government's income process is assumed to be a log-normal AR(1) process such that:
-$ log(y_t) = rho log(y_(t-1)) + epsilon^y_t $
-where $epsilon^y_t ~^(text("iid")) 𝒩(0, sigma^2_y)$ and $abs(rho)<1$
+$ log(y_t) = rho_y log(y_(t-1)) + epsilon^y_t $
+where $epsilon^y_t ~^(text("iid")) 𝒩(0, sigma^2_y)$ and $abs(rho_y)<1$
 
 In this framework, the output depends not only on the income process and the associated exogenous business cycle fluctuations and macoreocnomic shocks, but also on hurricane risk. In order the represent the impact of hurricane risk on output, it is introduced as a multiplicative distortion of income. Effectively, hurricane schok $h_t$ directly scales output each period, such that realized output is:
 $ x_t = y_t dot h_t $
@@ -210,11 +210,11 @@ _Government decisions._ #h(0.5cm) In each period of the model, the government ma
 1. First, it chooses whether to default or not. The choice of default has two major implications for the sovereign
   - If default is chosen, the government suffers from an associated cost on output, represented by an endowment loss function. Following Arellano (2008), the default cost on output function takes an asymmetric form:
   $ y^("def") = cases(
-    hat(y) = (1 - lambda) #math.bb("E") (y) #h(1.02cm) "if" y > hat(y),
+    hat(y) = lambda #math.bb("E") (y) #h(1.02cm) "if" y > hat(y),
     y #h(3.5cm) "if" y <= hat(y)
   ) 
   $ 
-  #h(0.5cm) where $0< lambda <1$ represents the endowment loss
+  #h(0.5cm) where $0< lambda <1$ represents the output cost parameter
   - In case of default, the sovereign is excluded from the international market and may only rejoin with probability $theta$
 
 2. Second, in the case of repayment, it chooses the amount of bond issuances to aim for in the current period. 
@@ -671,6 +671,8 @@ $
 
 A positive value of $Delta$ indicates that climate-contingent instruments impove welfare, thus providing adequate relief in disaster states which limits lifetime household consumption losses. However, a negative $Delta$ would imply that these instruments reduce welfare, potentially by increasing borrowing costs or diverting fiscal resources away from household consumption and toward relief efforts, ultimately leaving households worse off in the long run.
 
+\
+
 = Quantitative Evaluation
 \
 
@@ -681,7 +683,7 @@ Specifically, the government's decision over future debt levels is modeled as a 
 $
   pi_j (y, h, b) = frac(exp((V^("nd")_j (y, h, b; b'_j)) / rho_("EV")), sum^(N_b)_("s=1") exp((V^("nd")_s (y, h, b; b'_s))/ rho_("EV")))
 $
-where $rho_("EV") > 0$ approaximates the deterministic choice as it tends to 0. The probabilistic rule we use reflects the idea that small changes in fundamentals or expectations might lead the government to pick slightly different debt levels, as is often observed in practice, and not necessarily the one with the highest value. Therefore, the probability function gives more weight to options with higher expected value, but all options retain a strictly positive probability of being chosen. As the smoothing parameter  $rho_("EV")$ goes to 0, the choice becomes nearly deterministic and the government will almost always pick the option with the highest value.
+where $rho_("EV") > 0$ approaximates the deterministic choice as it tends to 0. The probabilistic rule we use reflects the idea that small changes in fundamentals or expectations might lead the government to pick slightly different debt levels, as it is often observed in practice, and not necessarily the one with the highest value. Therefore, the $pi_j (y, h, b)$ function assigns a higher probability to next-period debt options $b'_j$ with higher expected values, but all debt level options technically have a strictly positive probability of being chosen as well. As the smoothing parameter  $rho_("EV")$ goes to 0, the choice becomes nearly deterministic and the government will almost always pick the option with the highest value.
 \
 Each continuation value $V^("nd") (y, h, b; b'_j)$ is defined as:
 $
@@ -698,6 +700,118 @@ where $V^d (y,h)$ is the value of default. Probabilistic default also allows to 
 \
 
 == Parametrization
+\
+
+The parameters used to calibrate this model are directly taken from Mallucci (2022), who reports precisely the empirical estimation needed to calibration a sovereign default model with hurricane risk. The estimations are based on Jamaican data spanning 1980 to 2019 at annual frequency.
+All empirically estimated parameters are reported in @Table1. As indicated by Mallucci (2022), I assume that the relative risk aversion parameter $gamma$ is equal to 2, which is standard in the sovereign defautl literature. The probability to rejoin markets after default $theta$ is set to $frac(1,3)$, while the risk-free rate $r$ is equal to 0.0451 as in Mallucci (2022). The risk-free rate corresponds to the average annual T-bill rate between 1980 and 2019. I assume that the LT decay parameter $psi$ reflects the average duration of Jamaican bonds in that same period, rescaled using the Macaulay definition of duration explored in section 2. On the other hand the parameters representing the probability of a major hurricane and the average associated output losses during the 1980 and 2019 period in Jamaica are also computed by Mallucci (2022) using data from the National Oceanic and Atmospheric Administration (NOAA). Finally, all parameters related to the income process or the hurricane shock ($rho_y$, $sigma_y$, $mu_𝓁$, and $sigma_𝓁$) are all estimated by Mallucci (2022) using World Bank data.
+
+\
+
+#show figure: set block(breakable: true)
+
+#figure(
+  kind: "table",
+  supplement: "Table",
+  caption: [Empirically estimated parameters],
+
+block[
+  #table(
+    columns: 3,
+    align: (x, y) => if x == 0 { left } else { center },
+    stroke: none,
+    inset: 6pt,
+
+    // Manual horizontal lines
+    table.hline(y: 0, stroke: 0.8pt),
+    table.hline(y: 1, stroke: 0.8pt),
+    table.hline(y: 10, stroke: 0.8pt),
+
+    table.header(
+      [*Parameter*], [*Value*], [*Source/Statistic*]
+    ),
+
+    // Data rows
+    [*Relative risk aversion - $gamma$*], [2], [Literature standard],
+    [*Probability to rejoin markets - $theta$ #h(0.5cm)*], [$frac(1,3)$], [Mallucci (2022)],
+    [*Risk-free rate - r*], [0.0451], [T-bill rate (1980-2019)],
+    [*LT decay parameter - $psi$ *], [0.0564], [MDTS Jamaica],
+    [*Probability of a major hurricane - $pi_H$ #h(2.5cm)*], [0.103], [NOAA],
+    [*Income process autocorrelation coefficient - $rho_y$*], [0.96], [World Bank],
+    [*Income shock process std. deviation - $sigma_y$*], [0.026], [World Bank],
+    [*Hurricane shock average loss - $mu_𝓁$*], [0.023], [World Bank],
+    [*Hurricane shock loss std. deviation - $sigma_𝓁$*], [0.02], [World Bank],
+
+    // Footer
+    table.footer(
+      table.cell(
+        colspan: 3,
+        align: left,
+        inset: 4pt,
+        emph("All sources were directly used and reported by Mallucci (2022). The above references to their primary origin are indicated for completeness. --- NOAA refers to the National Oceanic and Atmospheric Administration. --- MDTS refers to the Medium-Term Debt Management Strategy of Jamaica "),
+        
+      )
+    )
+  )
+]
+) <Table1>
+
+\
+
+In order to coherently calibrate the model, the discount factor parameter $beta$ and the output costs parameter $lambda$ are both calibrated to match two moments of the Jamaican economy: an average spread of 519 basis points and a 0.49 external debt-to-GDP ratio. These parameters are reported in @Table2.
+
+\
+
+#show figure: set block(breakable: true)
+
+#figure(
+  kind: "table",
+  supplement: "Table",
+  caption: [Calibrated parameters],
+
+block[
+  #table(
+    columns: 3,
+    align: (x, y) => if x == 0 { left } else { center },
+    stroke: none,
+    inset: 6pt,
+
+    // Manual horizontal lines
+    table.hline(y: 0, stroke: 0.8pt),
+    table.hline(y: 1, stroke: 0.8pt),
+    table.hline(y: 3, stroke: 0.8pt),
+
+    table.header(
+      [*Parameter*], [*Value*], [*Traget Statistic*]
+    ),
+
+    // Data rows
+    [*Discount factor - $beta$*], [0.925], [Debt-to-GDP ratio],
+    [*Output costs parameter - $lambda$ #h(0.5cm)*], [0.725], [Average spread],
+
+    // Footer
+    table.footer(
+      table.cell(
+        colspan: 3,
+        align: left,
+        inset: 4pt,
+        emph(""),
+        
+      )
+    )
+  )
+]
+) <Table2>
+
+\
+
+Finally, in addition to the standard parameters set for the benchmark model, We also define three different values of $alpha$, the CAT bond parameter which refers to the amount of coverage of the CAT relative to the sovereign debt stock. These values allow us to test for the varying impact of CAT bonds on default risk, borrowing costs, and welfare depending on the size of the CAT bond relative to the debt stock. The three values are chosen as follows:
+1. *$alpha = 0.55$* - CAT bonds representing 55% of the debt stock allow us to test the impact of having a CAT bond contract which implies a payout equivalent to more than half of the debt stock in case of a hurricane, in exchange for paying proportionally signficant premiums. 
+2. *$alpha = 0.0155$* - CAT bonds representing 1.55% represent a much more modest CAT bond size. This value matches empirical observations more closely. In 2021, the World Bank issued a USD 185 million CAT bond on behalf of Jamaica for hurricane protection (World Bnak, 2021). In the same year, Jamaica's external debt stock amounted to USD 11,928.28 million (Caribbean Policy Development Center, 2023).
+3. *$alpha = 1.00$* - CAT bonds representing 100% of the debt stock allow us to test the impact of having a full coverage CAT bond contract which implies a payout equivalent to the entire debt stock in case of a hurricane, in exchange for paying proportionally signficant premiums. 
+
+
+
+\
 
 == Results - Baseline
 
