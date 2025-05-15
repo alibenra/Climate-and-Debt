@@ -31,6 +31,32 @@ function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i
     savefig(plt, "graphs/$(filename).png")
 end
 
+function plot_and_save_value_function(result; filename::String, i_low::Int = 1, i_high::Int = -1)
+    b_g_vec = -vec(result.b_g_vec)
+    v_guess = result.v_guess
+    gdp_vec = result.gdp_vec
+
+    if i_high < 0
+        i_high = length(gdp_vec)
+    end
+
+    value_low  = vec(v_guess[i_low, :])
+    value_high = vec(v_guess[i_high, :])
+
+    plt = plot(b_g_vec, value_low,
+        label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
+        lw = 2, xlabel = "Debt (B)", ylabel = "Value Function V⁰(B,y)",
+        title = "Value Function for Distinct GDP States",
+        legend = :topleft,
+        xlims = (-0.45, 0.00)) 
+
+    plot!(plt, b_g_vec, value_high,
+        label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
+        lw = 2)
+
+    savefig(plt, "graphs/$(filename).png")
+end
+
 
 function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
     if isempty(results)

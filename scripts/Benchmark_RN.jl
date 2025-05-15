@@ -639,7 +639,8 @@ function main_country_RN(country::String)
         q_g = q_g,
         gdp_vec = vec(gdp_vec),
         V_g_mean = V_g_mean,
-        gamma_c = gamma_c
+        gamma_c = gamma_c,
+        v_guess = v_guess
     )
 end
 

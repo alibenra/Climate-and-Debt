@@ -27,6 +27,10 @@ plot_and_save_bond_schedule(result_bench_RN; filename="BondSchedule_Benchmark_RN
 plot_and_save_bond_schedule(result_1P_RN; filename="BondSchedule_1P_PC_RN")
 plot_and_save_bond_schedule(result_2P_RN; filename="BondSchedule_2P_PC_RN")
 plot_and_save_bond_schedule(result_CAT_RN; filename="BondSchedule_CAT_RN")
+plot_and_save_value_function(result_bench_RN; filename="ValueFunction_Benchmark_RN")
+
+
+
 
 # --- Step 5: Bond Price Schedule Comparison - RN ---
 instruments_RN = OrderedDict(

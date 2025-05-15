@@ -821,6 +821,7 @@ This document summarizes the main simulated moments and welfare comparisons acro
 #include "../output/group_sim_RN.typ"
 
 #image("../graphs/BondSchedule_Benchmark_RN.png", width: 70%)
+#image("../graphs/ValueFunction_Benchmark_RN.png", width: 70%)
 #image("../graphs/BS_Comparison_RN.png", width: 100%)
 #image("../graphs/BS_CAT_Share_RN.png", width: 100%)
 
