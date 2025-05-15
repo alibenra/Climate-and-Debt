@@ -846,12 +846,21 @@ This section first explores the trajectory of policy functions. In all figures, 
 
 \
 
+@Figure3 plots the bond price schedules of all the climate-contingent debt instruments explored in this paper against the benchmark model. Overall, bonds price schedules follow close trajectories to the benchmark model in their respective high or low output realizations. However, in both case, the relative impact of each climate-contingent instrument depends on the level of indebtedness. For low levels of debt, the CAT bond (with a relative size corresponding to 55% of the debt stock), offers a slightly higher price than benchmark, while the two DPC designs enforce a discount on the bond price. These effects are more pronounced in low output states. This relfects the fact that for modest levels of borrowing, an insurance-like instrument enhances the government's ability to smooth consumption in adverse states. In contrast, DPCs reduce the expected investor payoff by postponing debt service while providing limited relief, as debt is alread low, which therefore implies a minor impact on the fiscal burden. 
+
+However, at higher debt levels, espeically in the high output state, while bond price decline for all instruments, the DPCs seem to offer higher bond prices and defer the default debt threshold, particularly under the two-period relief design. This suggests that DPCs may only be valuable at elevated levels of borrowing, for which the magnitude of relief becomes significant relative to the fiscal burden (larger amounts of payments paused) and effectively frees up much more fiscal space than in in low levels of debt positions. On the ther hand, CAT bonds have a limited impact for higher debt levels, as the insurance payout may not sufficiently offset the heightened default risk stemming from debt servicing in the eyes of investors. 
+
+For low of output states, however, the effects on bond prices across all instruments are largely indistinguishable at high levels of indebtedness, indicating the limited capacity of climate-contingent instruments to provide effective relief under severe macroeconomic conditions and disaster stress.
+
+\
+
 #figure(
   image("../graphs/BS_Comparison_RN.png", width: 125%),
   caption: [Bond Price Schedule - Benchmark Model vs. Climate-Contingent Instruments.],
 ) <Figure3>
 
 \
+
 
 #figure(
   image("../graphs/BS_CAT_Share_RN.png", width: 125%),
