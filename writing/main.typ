@@ -895,7 +895,7 @@ Overall, while DPCs may provide intertemporal flexibility and temporarily expand
 === Welfare Analysis
 \
 
-Table 5 and the accompanying Figure 5 reflect the fact that all instruments yield welfare losses relative to the benchmark. This suggest that none of the instruments succeeds in improving household consumption under hurricane risk. However, the maginitude of these losses varies signficantly across instruments. 
+@Table5 and the accompanying @Figure5 reflect the fact that all instruments yield welfare losses relative to the benchmark. This suggest that none of the instruments succeeds in improving household consumption under hurricane risk. However, the maginitude of these losses varies signficantly across instruments. 
 
 The DPC designs result in the largest welfare losses, reflecting higher borrowing patterns associated with higher spreads and default risks, all of which reduce overall consumption smoothing by raising borrowing costs. 
 
@@ -926,6 +926,16 @@ Finally, the attentive reader will note that these results might only be valid u
 
 == Results - Climate Change Scenario
 
+\
+
+In order to assess the long-term effectiveness of climate-contingent instruments, we replicate the same baseline quantitative simulations under a climate change scenario. Effectively, hurricane-related paramters are adjusted to reflect an intensification of climate change risks. Hurricane frequency is increased by 29.2% following Bhatia et al. (2018) and hurricnae damage is increased by 48.5% as in Mejia (2016). These statistics were originally reported in Mallucci (2022) and were taken directly to conduct a similar climate change stress test on the instruments analyzed in this paper.
+
+Overall, the patterns oberved in the baseline simulations remain consistent, though the the magnitude of effects is notably amplified. @Figure6 shows that bond price schedules maintain their downdard-sloping structure with respect to debt. Bond prices remain higher with CAT bonds at lower levels of indebtdenss and lower under DPCs for small debt positions. On the other hand, for higher debt levels, epsecially in high output states, bond prices under DPC designs, especially the 2PC, rise above the benchmark. These effects are much more pronounced than in the baseline. Similar conclusions can be drawn from @Figure7 about the effect of a variation in CAT bond coverage.
+
+@Table7 confirms these patterns in simulated moments. Spreads and default frequencies increase across all specifications, but CAT bonds, especially at the largest size, continue to provide more effective relief dynamics than DPCs. Turning to welfare outcomes (@Table9 and @Figure8), we observe a fundamental shift: whereas all instruments induced losses under baseline conditions, in the climate-intensified environment, the largest CAT bond delivers a net welfare gain of 0.05%. This suggests that under more frequent and severe shocks, the insurance-like design of CAT bonds becomes not only cost-effective but welfare-enhancing. Similarly, welfare losses are also lower for DPC designs, especially the one-pause clause contract. This suggest that for higher levels of climate shocks, more designs could lead to welfare improvement. As such, as climate change continues to intensify, climate-contingent instuments will become more relevant for governments to improve welfare and benefit from effective relief conditions.
+
+\
+
 === Comparative Simulations: Benchmark vs. Climate-Contingent Debt Instruments
 
 \
@@ -953,8 +963,7 @@ Finally, the attentive reader will note that these results might only be valid u
 
 
 === Welfare Analysis
-
-Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
+\
 
 #figure(
   kind: "table",
@@ -990,11 +999,11 @@ Below are the consumption-equivalent welfare gains (in %) for alternative model 
 = Appendix
 \
 
-== Benchnmark model with risk-averse investors 
+== Solution algorithm
 \
 
 
-== Solution algorithm
+== Benchnmark model with risk-averse investors 
 \
 
 
