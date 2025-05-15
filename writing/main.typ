@@ -817,11 +817,14 @@ Finally, in addition to the standard parameters set for the benchmark model, We 
 
 \
 
-This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
-
 === Benchmark Model Analysis
 
 \
+
+This section first explores the trajectory of policy functions. In all figures, output incorporates both income and hurricane shocks. Low output realizations correspond to states in which either or both hurricane and income shocks are strong, while high output realizations refer to states in which there was a positive income shock and no hurricane damage recorded. All figures below effectively capture both the minimum effective output state and the maximum effective output state in the simulation process.
+
+@Figure1 illustrates the bond price schedule $q(b', y)$ as a function of next-period debt position $b'$, conditional on the two distinct realizations of effective output. The bond price schedule shows a downward-sloping relationship with debt. Indeed, hhigher borrowing levels $b'$ are associated with greater price discounts in both high and low output states. This confirms that the model captures a higher risk of default as debt levels rise. More importantly, this dynamic is much more pronounced in low output states, during which the government faces tighter borrowing constraints. As such, this reflects the fact that in adverse states, the risk of default is heightened. This analysis aligns with the model's assumptions and is consistent with findings from the quantitative sovereign default literature (Arellano, 2008), demonstrating the credibility of this model framework. The sharp drop in bond prices for larger debt positions in the low-output state also highlights the endogenous borrowing limits imposed in the model. For low output states, bond prices reach the null value at very low levels of borrowing, signalling a much larger default set than in the high output states. Overall, both macroeconomic and hurricane shocks, through their joint effect on output, could signficantly alter the endogenous borrowing capacity of the government.
+
 
 #figure(
   image("../graphs/BondSchedule_Benchmark_RN.png", width: 75%),
@@ -830,11 +833,14 @@ This document summarizes the main simulated moments and welfare comparisons acro
 
 \
 
+@Figure2 on the other hand plots the government's value function $V^o (b,y,h)$ across different debt positions $b$, once again in both high and low output states. Value functions in both states are declining with high levels of indebtedness. Nevertheless, utility seems to be consistently higher in high-output states, reflecting better fiscal capacity and access to credit markets. The flat segments in both states correspond to regions in which the government's debt position does not impact the value function, signalling an autarky state. Flat segments thus reflect levels of borrowing for which the government is effectively cut off from credit markets, potentially due to prohibitively high interest rates reflected by correspondingly null bond prices at similar debt levels in @Figure1. The figure also highlights the fact that the government is excluded from markets at much lower levels of debt in low output states compared to high output states. This feature highlights the role of disaster risk in amplifying default risk and distorting intertemporal smoothing through indebtedness. When a hurricane strikes, lowering output and increasing borrowing needs, the government's marginal value of consumption is high, but access to credit is hindered, reflecting the core mechanism driving the climate crisis-sovereign debt doom loop.
+
 #figure(
   image("../graphs/ValueFunction_Benchmark_RN.png", width: 75%),
   caption: [Value Functions - Benchmark Model.],
 ) <Figure2>
 
+\
 
 === Comparative Simulations: Benchmark vs. Climate-Contingent Debt Instruments
 
