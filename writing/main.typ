@@ -636,17 +636,40 @@ where, conditional on no default:
 - the second terms captures the discounted expecation of the next-period resale value of the asset  
 ]
 
-
+\
 
 == Welfare evaluation framework
 
 \
 
-Following Mallucci (2022), 
+In order to evaluate whether DPCs and CAT bonds improve welfare, we compute welfare gains relative to the baseline using a consumption-equivalent welfare metric, following the methodology adopted by Mallucci (2022). 
 
+_Conceptual Framewrok_ #h(0.5cm) Let $c^("benchmark")$ denote the consumption path under the benchmark model, meaning an economy exposed to climate risk but without any climate-contingent instrument. Let $c^("instrument")$ represent the equilibrium consumption path incorporating a specific disaster-relief instrument (either DPC or CAT bond). To compare welfare across these two setting, we define the consumption-equivalent welfare gain $Delta$ as the percentage increase in consumption that would make a household indifferent between the benchmark and the climate-contingent enhanced economy. Formally, $Delta$ solves for:
 $
-  Delta = (frac(V(c^("instrument")), V(c^("benchmark"))))^(frac(1, 1-gamma)) - 1
+  V(c^("benchmark") dot (1+ Delta)) = V(c^("instrument"))
 $
+where $V(dot)$ denotes the expected lifetime utility function, and $Delta$ represents the adjustment needed in the benchmark economy to equate household welfare in the climate-contingent instrument scenario.
+
+_Application under CRRA Preferences_ #h(0.5cm) This framework is adapted to the CRRA preferences specificed in the model economy, $u(c) = frac(c^(1-gamma), 1-gamma)$ with $gamma$ being the coefficient of household risk aversion. In the quantitative implementation, utility is computed over state-contingent consumption paths using simulations. Therefore, the average lifetime utility in each case is directly obtained from the model. Specifically, for each alternative instrument design, we compute the mean of the simulated lifetime utility across all states of the world, denoted $V^("instrument")$, and compare it to the corresponding average utility under the benchmark model, denoted $V^("benchmark")$. These values are defined as follows:
+$
+  V^("benchmark") = #math.bb("E") [ sum^infinity_(t=0) beta^t u(c_t ^("benchmark")) ]
+$
+and 
+$
+  V^("instrument") = #math.bb("E") [ sum^infinity_(t=0) beta^t u(c_t ^("instrument")) ]
+$
+Under CRRA, 
+$
+  V(c^("benchmark") dot (1+ Delta)) = #math.bb("E") [ sum^infinity_(t=0) beta^t frac(((1+ Delta)dot c_t ^("benchmark"))^(1-gamma), 1-gamma) ] = (1+ Delta)^(1-gamma) dot V^("benchmark")
+$
+Therefore,
+$
+  (1+ Delta)^(1-gamma) dot V^("benchmark") = V^("instrument") \
+  (1+ Delta)^(1-gamma) = frac(V^("instrument"), V^("benchmark")) \
+  Delta = (frac(V^("instrument"), V^("benchmark")))^(frac(1, 1-gamma)) - 1
+$
+
+A positive value of $Delta$ indicates that climate-contingent instruments impove welfare, thus providing adequate relief in disaster states which limits lifetime household consumption losses. However, a negative $Delta$ would imply that these instruments reduce welfare, potentially by increasing borrowing costs or diverting fiscal resources away from household consumption and toward relief efforts, ultimately leaving households worse off in the long run.
 
 = Quantitative Evaluation
 \
