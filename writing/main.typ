@@ -699,7 +699,7 @@ where $V^d (y,h)$ is the value of default. Probabilistic default also allows to 
 
 \
 
-== Parametrization
+== Parameterization
 \
 
 The parameters used to calibrate this model are directly taken from Mallucci (2022), who reports precisely the empirical estimation needed to calibration a sovereign default model with hurricane risk. The estimations are based on Jamaican data spanning 1980 to 2019 at annual frequency.
@@ -1003,8 +1003,16 @@ It is worth noting that these results are conditional on the risk-neutral framew
 == Solution algorithm
 \
 
+The following algorithm outlines the solution method for the benchmark sovereign default model with hurricane risks. 
+1. Begin by selecting intial values for the calibrated paramters $beta$ and $lambda$. Define the discretized exogenous income and hurricane processes. Following Mallucci (2022), The income shock follows an AR(1) process discretized over a 63 points grid $y$, while the hurricane shock is modeled as a truncated log-normal loss process discretized over a 20 point grid $h$. Construct a joint output process $x_t = y_t dot h_t$ with transition matrix $P_x$ based on Kronecker products of their individual transitions. The asset space is defined over a grid of 150 points $b$.
+2. Initialize the bond price schedule $q^0 (b', x)$ at the risk-free price.
+3. For a given $q^0$, solve the borrower's recurive problem via VFI. Compute the value of repayment and default using a CRRA utility function. Under repayment, the government chooses next-period debt probabilistically using a soft-max operator. Default probabilities are also updated using a probabilistic framework to ensure convergence. Iterate until the value functions converge below a tolerance level $epsilon_v$.
+4. Given the updated default probabilities and transition matrix, compute lenders' expected bond payoffs and update the price schedule to enforce zero-profit pricing under risk-neutrality. Bond prices are dampened via a Gauss-Seidel algorithm with a relaxation parameter and iterated until convergence below the $epsilon_q$ is achieved.
+5. Once prices and policies converge, simulate the model over 10,000 periods. Compute statistics such as spreads, debt-to-GDP ratios, default frequency, and welfare from the simulated series. Simulation moments are compared to empirical targets. If simulated moments do not match, recalibrate parameters and return to step 1.
 
-== Benchmark model with risk-averse investors 
+\
+
+== Sketching a benchmark model with risk-averse investors 
 \
 
 
