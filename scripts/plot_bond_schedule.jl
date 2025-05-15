@@ -3,71 +3,63 @@ cd(normpath(joinpath(@__DIR__, "..")))
 
 using Plots, Measures, DataFrames, DataStructures
 
-function plot_and_save_bond_schedule(result; filename::String, i_low::Int = 1, i_high::Int = -1)
+function plot_and_save_bond_schedule(result; filename::String, i_low::Int = argmin(result.gdp_vec),
+    i_high::Int = argmax(result.gdp_vec))
     b_g_vec = result.b_g_vec
     q_g = result.q_g
     gdp_vec = result.gdp_vec
     gdp_mean = result.meanDebtGDP
-
-    if i_high < 0
-        i_high = length(gdp_vec)
-    end
 
     bond_prices_low  = vec(q_g[i_low, :])
     bond_prices_high = vec(q_g[i_high, :])
     b_grid = -vec(b_g_vec)  # Flip sign to match convention
 
     plt = plot(b_grid, bond_prices_low,
-            label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
-            lw = 2, xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)",
-            title = "Bond Price Schedule for Distinct GDP States",
+            label = "Low output = $(round(gdp_vec[i_low], digits=3))",
+            lw = 2, xlabel = "Next–Period Debt Position b' ", ylabel = "Bond Price q(b', y)",
             xlims = (-0.45, 0.00)) 
 
     plot!(plt, b_grid, bond_prices_high,
-        label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
+        label = "High output = $(round(gdp_vec[i_high], digits=3))",
         lw = 2,
         xlims = (-0.45, 0.00)) 
 
     savefig(plt, "graphs/$(filename).png")
 end
 
-function plot_and_save_value_function(result; filename::String, i_low::Int = 1, i_high::Int = -1)
+function plot_and_save_value_function(result; filename::String, i_low::Int = argmin(result.gdp_vec),
+    i_high::Int = argmax(result.gdp_vec))
     b_g_vec = -vec(result.b_g_vec)
     v_guess = result.v_guess
     gdp_vec = result.gdp_vec
-
-    if i_high < 0
-        i_high = length(gdp_vec)
-    end
 
     value_low  = vec(v_guess[i_low, :])
     value_high = vec(v_guess[i_high, :])
 
     plt = plot(b_g_vec, value_low,
-        label = "Low GDP = $(round(gdp_vec[i_low], digits=3))",
-        lw = 2, xlabel = "Debt (B)", ylabel = "Value Function V⁰(B,y)",
-        title = "Value Function for Distinct GDP States",
+        label = "Low output = $(round(gdp_vec[i_low], digits=3))",
+        lw = 2, xlabel = "Debt Position b ", ylabel = "Value Function V⁰(b,y, h)",
         legend = :topleft,
         xlims = (-0.45, 0.00)) 
 
     plot!(plt, b_g_vec, value_high,
-        label = "High GDP = $(round(gdp_vec[i_high], digits=3))",
+        label = "High output = $(round(gdp_vec[i_high], digits=3))",
         lw = 2)
 
     savefig(plt, "graphs/$(filename).png")
 end
 
 
-function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::String, i_low::Int = 1, i_high::Int = -1)
+function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::String)
     if isempty(results)
         error("No results provided for comparison.")
     end
 
     # Assume the first result has the correct gdp_vec length for bounds
     sample_result = first(values(results))
-    if i_high < 0
-        i_high = length(sample_result.gdp_vec)
-    end
+    i_low = argmin(sample_result.gdp_vec)
+    i_high = argmax(sample_result.gdp_vec)
+
 
     # Ensure labels and axes are not cropped in saved output
     plt = plot(
@@ -92,8 +84,8 @@ function comp_bond_schedule(results::OrderedDict{String, <:Any}; filename::Strin
         plot!(plt[2], b_grid, bond_prices_high, label = "$label", lw = 2, ls = :dash, xlims = (-0.45, 0.00), legend = :bottomright)
     end
 
-    plot!(plt[1], xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)", title = "Bond Price Schedule at Low Income", framestyle = :box)
-    plot!(plt[2], xlabel = "Next–Period Debt (B')", ylabel = "Bond Price (q)", title = "Bond Price Schedule at High Income", framestyle = :box)
+    plot!(plt[1], xlabel = "Next–Period Debt Position b' ", ylabel = "Bond Price q(b', y)", title = "Bond Price Schedule at Low Output Realization", framestyle = :box)
+    plot!(plt[2], xlabel = "Next–Period Debt Position b' ", ylabel = "Bond Price q(b', y)", title = "Bond Price Schedule at High Output Realization", framestyle = :box)
 
     plot!(plt[1], ylims = (0, 10))
     plot!(plt[2], ylims = (0, 10))
@@ -132,7 +124,6 @@ function plot_cat_welfare(df::DataFrame; filename::String = "Welfare_vs_CAT")
             seriestype = :scatter,
             xlabel = "CAT Bond Coverage (%)",
             ylabel = "Welfare Gain (%)",
-            title = "Welfare Gains vs CAT Coverage – $mode",
             markershape = :circle,
             markercolor = :blue,
             legend = false,

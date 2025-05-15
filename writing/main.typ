@@ -815,38 +815,121 @@ Finally, in addition to the standard parameters set for the benchmark model, We 
 
 == Results - Baseline
 
+\
+
 This document summarizes the main simulated moments and welfare comparisons across different model specifications evaluated in the sovereign default framework with climate risk.
 
-=== Simulations
-#include "../output/group_sim_RN.typ"
+=== Benchmark Model Analysis
 
-#image("../graphs/BondSchedule_Benchmark_RN.png", width: 70%)
-#image("../graphs/ValueFunction_Benchmark_RN.png", width: 70%)
-#image("../graphs/BS_Comparison_RN.png", width: 100%)
-#image("../graphs/BS_CAT_Share_RN.png", width: 100%)
+\
+
+#figure(
+  image("../graphs/BondSchedule_Benchmark_RN.png", width: 75%),
+  caption: [Bond Price Schedule - Benchmark Model.],
+) <Figure1>
+
+\
+
+#figure(
+  image("../graphs/ValueFunction_Benchmark_RN.png", width: 75%),
+  caption: [Value Functions - Benchmark Model.],
+) <Figure2>
+
+
+=== Comparative Simulations: Benchmark vs. Climate-Contingent Debt Instruments
+
+\
+
+#figure(
+  image("../graphs/BS_Comparison_RN.png", width: 125%),
+  caption: [Bond Price Schedule - Benchmark Model vs. Climate-Contingent Instruments.],
+) <Figure3>
+
+\
+
+#figure(
+  image("../graphs/BS_CAT_Share_RN.png", width: 125%),
+  caption: [Bond Price Schedule - Varying CAT Bond Size.],
+) <Figure4>
+
+\
+
+#figure(
+  kind: "table",
+  supplement: "Table",
+  include "../output/group_sim_RN.typ",
+  caption: [Simulated Moments - Benchmark vs. Climate-Contingent Instruments.],
+) <Table3>
+
+\
 
 === Welfare Analysis
+\
 
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
-#include "../output/welfare_gains.typ"
-#image("../graphs/Welfare_vs_CAT_Share_RN.png", width: 70%)
+#figure(
+  kind: "table",
+  supplement: "Table",
+  include "../output/welfare_gains.typ",
+  caption: [Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
+) <Table5>
+
+\
+
+#figure(
+  image("../graphs/Welfare_vs_CAT_Share_RN.png", width: 70%),
+  caption: [Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
+) <Figure5>
+
+\
 
 == Results - Climate Change Scenario
 
-=== Simulations
-#include "../output/group_sim_RN_climate.typ"
+=== Comparative Simulations: Benchmark vs. Climate-Contingent Debt Instruments
 
-#image("../graphs/BondSchedule_Benchmark_RN_Climate.png", width: 70%)
-#image("../graphs/BS_Comparison_RN_Climate.png", width: 100%)
-#image("../graphs/BS_CAT_share_RN_Climate.png", width: 100%)
+\
+
+#figure(
+  image("../graphs/BS_Comparison_RN_Climate.png", width: 125%),
+  caption: [Climate Change: Bond Price Schedule - Benchmark Model vs. Climate-Contingent Instruments.],
+) <Figure6>
+
+\
+
+#figure(
+  image("../graphs/BS_CAT_share_RN_Climate.png", width: 125%),
+  caption: [Climate Change: Climate Bond Price Schedule - Varying CAT Bond Size.],
+) <Figure7>
+
+\
+
+#figure(
+  kind: "table",
+  supplement: "Table",
+  include "../output/group_sim_RN.typ",
+  caption: [Climate Change: Simulated Moments - Benchmark vs. Climate-Contingent Instruments.],
+) <Table7>
+
 
 === Welfare Analysis
 
 Below are the consumption-equivalent welfare gains (in %) for alternative model specifications relative to their respective benchmark.
 
-#include "../output/welfare_gains_climate.typ"
-#image("../graphs/Welfare_vs_CAT_Share_Climate_RN.png", width: 70%)
+#figure(
+  kind: "table",
+  supplement: "Table",
+  include "../output/welfare_gains_climate.typ",
+  caption: [Climate Change: Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
+) <Table9>
+
+\
+
+#figure(
+  image("../graphs/Welfare_vs_CAT_Share_Climate_RN.png", width: 70%),
+  caption: [Climate Change: Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
+) <Figure8>
+
 
 
   
