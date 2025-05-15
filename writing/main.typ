@@ -642,6 +642,8 @@ where, conditional on no default:
 
 \
 
+Following Mallucci (2022), 
+
 $
   Delta = (frac(V(c^("instrument")), V(c^("benchmark"))))^(frac(1, 1-gamma)) - 1
 $
