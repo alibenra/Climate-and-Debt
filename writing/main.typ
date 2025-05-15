@@ -979,19 +979,20 @@ Overall, the patterns oberved in the baseline simulations remain consistent, tho
   caption: [Climate Change: Welfare Gains - Benchmark vs. Climate-Contingent Instruments.],
 ) <Figure8>
 
-
-
-  
-
-
-
-
 \
 
 = Conclusion
 \
 
+This paper examines whether and how climate-contingent sovereign debt instruments can enhance borrowing conditions, debt sustainability, and welfare in economies exposed to natural disasters. Using a quantitative sovereign default model calibrated to Jamaican data, we analyze the performance of disaster pause clauses (DPCs) and catastrophe (CAT) bonds under both baseline and climate-intensified scenarios. The model incorporates stochastic hurricane shocks as a multiplicative distortion of the income process, and embeds the two classes of climate-contingent instruments into the model to evaluate their effects on borrowing conditions, default risk, and household welfare.
 
+Key findings show that while all instruments expand the government's borrowing capacity, they differ significantly in their implications for sovereign risk and welfare. DPCs lead to higher spreads and default frequencies, driven by elevated borrowing levels and investor concerns over delayed repayments.DPCs seem to provide effective relief relative to the benchmark only at high levels of indebtedness in high-output state only, where the combination of substantial deferred payments and favorable economic conditions yields some relief relative to the benchmark. Nevertheless, although they offer intertemporal relief, DPCs consistently generate welfare losses under baseline conditions as higher borrowing costs crowd out consumption, undermining the government's ability to smooth household welfare over time.
+
+In contrast, CAT bonds, especially at higher coverage levels, are associated with lower spreads and a reduced likelihood of default, due to their insurance-like structure that directly mitigates disaster-induced fiscal shocks.
+
+Importantly, when simulating a climate change scenario with more frequent and severe hurricanes, the relative perofrmance of CAT bonds improves markedly. The largest CAT bond issuance covering 100% of the debt stock yields a net welfare gain, indicating that under more intense climate stress, the benefits of insurance outweigh the costs of its premiums. This is consitent with the fact that climate change intensification implies more disaster periods, and thus more payouts and less premium payments. DPCs also exhibit milder welfare losses in a climate change scenario, suggesting that both instruments become more relevant as disaster risk increases. As such, while the climate-contingent instruments may currently imply signficant costs, whether through higher borrowing spreads or insurance premiums that limit their overall effectiveness, their relevance is expected to grow as the likelihood and severity of disasters increase.
+
+It is worth noting that these results are conditional on the risk-neutral framework and the assumption that CAT bond payouts are uncorrelated with broader macroeconomic conditions. The effects of each instrument could be reevaluated in future work under the assumption of risk-averse investors to capture more accurately sovereign pricing dynamics and their impact on soverieng risk, especially in the face of disaster risk. An early theoretical extension incorporating investor risk-aversion is presented in the appendix.
 
 
 \
@@ -1003,7 +1004,7 @@ Overall, the patterns oberved in the baseline simulations remain consistent, tho
 \
 
 
-== Benchnmark model with risk-averse investors 
+== Benchmark model with risk-averse investors 
 \
 
 
