@@ -536,10 +536,10 @@ end
 # ========================================================
 
 function main_country_1P_RN(country::String)
-    N_y = 11
-    N_h = 5
+    N_y = 7
+    N_h = 3
     N_x = N_y * N_h
-    N_b_g = 100
+    N_b_g = 50
     λ = 1 / 3
 
     int_y = 2.5 * (N_y != 1 ? 1 : 0) + eps() * (N_y == 1)

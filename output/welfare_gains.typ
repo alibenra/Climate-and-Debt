@@ -16,11 +16,11 @@ block[
     table.header(
       [*Model*], [*Welfare Gain (%)*]
     ),
-    [*1P_RN*], [-0.061],
-    [*2P_RN*], [-0.090],
-    [*CAT RN 55%*], [0.017],
-    [*CAT RN 1.55%*], [0.007],
-    [*CAT RN 100%*], [0.196],
+    [*1P_RN*], [-0.223],
+    [*2P_RN*], [-0.275],
+    [*CAT RN 55%*], [-0.117],
+    [*CAT RN 1.55%*], [-0.012],
+    [*CAT RN 100%*], [-0.075],
 
     table.footer(
       table.cell(

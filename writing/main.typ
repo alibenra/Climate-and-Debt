@@ -957,7 +957,7 @@ Overall, the patterns oberved in the baseline simulations remain consistent, tho
 #figure(
   kind: "table",
   supplement: "Table",
-  include "../output/group_sim_RN.typ",
+  include "../output/group_sim_RN_climate.typ",
   caption: [Climate Change: Simulated Moments - Benchmark vs. Climate-Contingent Instruments.],
 ) <Table7>
 
@@ -1003,7 +1003,7 @@ It is worth noting that these results are conditional on the risk-neutral framew
 \
 
 The following algorithm outlines the solution method for the benchmark sovereign default model with hurricane risks. 
-1. Begin by selecting intial values for the calibrated paramters $beta$ and $lambda$. Define the discretized exogenous income and hurricane processes. Following Mallucci (2022), The income shock follows an AR(1) process discretized over a 63 points grid $y$, while the hurricane shock is modeled as a truncated log-normal loss process discretized over a 20 point grid $h$. Construct a joint output process $x_t = y_t dot h_t$ with transition matrix $P_x$ based on Kronecker products of their individual transitions. The asset space is defined over a grid of 150 points $b$.
+1. Begin by selecting intial values for the calibrated paramters $beta$ and $lambda$. Define the discretized exogenous income and hurricane processes. The income shock follows an AR(1) process discretized over a $y$ grid, while the hurricane shock is modeled as a truncated log-normal loss process discretized over a $h$ grid. Construct a joint output process $x_t = y_t dot h_t$ with transition matrix $P_x$ based on Kronecker products of their individual transitions. The asset space is defined over a separate $b$ grid. In this working version of the paper, we adopt a coarser grid specification (7 income states, 3 hurricane states, 50 debt levels) as it provides simulated moments, including average spread, debt-to-GDP ratio, and default frequency, that closely match empirical data from Jamaica while maintaining numerical efficiency.
 2. Initialize the bond price schedule $q^0 (b', x)$ at the risk-free price.
 3. For a given $q^0$, solve the borrower's recurive problem via VFI. Compute the value of repayment and default using a CRRA utility function. Under repayment, the government chooses next-period debt probabilistically using a soft-max operator. Default probabilities are also updated using a probabilistic framework to ensure convergence. Iterate until the value functions converge below a tolerance level $epsilon_v$.
 4. Given the updated default probabilities and transition matrix, compute lenders' expected bond payoffs and update the price schedule to enforce zero-profit pricing under risk-neutrality. Bond prices are dampened via a Gauss-Seidel algorithm with a relaxation parameter and iterated until convergence below the $epsilon_q$ is achieved.
