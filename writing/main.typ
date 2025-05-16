@@ -994,8 +994,7 @@ Importantly, when simulating a climate change scenario with more frequent and se
 
 It is worth noting that these results are conditional on the risk-neutral framework and the assumption that CAT bond payouts are uncorrelated with broader macroeconomic conditions. The effects of each instrument could be reevaluated in future work under the assumption of risk-averse investors to capture more accurately sovereign pricing dynamics and their impact on soverieng risk, especially in the face of disaster risk. An early theoretical extension incorporating investor risk-aversion is presented in the appendix.
 
-
-\
+#pagebreak()
 
 = Appendix
 \
@@ -1015,6 +1014,132 @@ The following algorithm outlines the solution method for the benchmark sovereign
 == Sketching a benchmark model with risk-averse investors 
 \
 
+_ This section is still under development and is presented to illustrate the initial thought process and approach for incorporating risk-averse investors into a sovereign default model with hurricane shocks. Any inconsistencies or errors will be addressed as this extension is refined in future work. Thank you for your understanding. _ 
+
+\
+
+The framework follows Lizarazo (2013). Investors are risk-averse and exhibit decreasing absolute risk aversion (DARA), with a tolerance rowards risk highly dependent on their own wealth $W$. In this model, wealth is represented as investors' return from purchasing government assets and risk-free asset. As such, price of bonds will be denoted as $q(b', y, W)$. Theoretically due to risk aversion, the price will have two components:
+- $q^("RN")$ the price of the riskless bond $q^f = frac(1, 1+r)$ adjusted for the probability of default $delta(b', y', h', W')$
+- $xi^("RA")$ the risk premium demanded by risk-averse investors. More details below. 
+
+\
+
+Government resource constraints will remain essentially the same, but pricing will take into account the welath of investors.
+- Repayment branch
+$ c = y dot h + b - q(b', y, W) [b' - (1-psi)b] $
+\
+- Default branch
+$ c = y^("def") dot h $
+
+\
+
+Government value functions will now also take into account investors' wealth as a fourth dimension. Formally:
+$ V^o (b,y,h, W) = max{V^R (b,y,h, W), V^D (y,h, W+b)} $
+where $V^R (b,y,h, W)$ is the value of repayment and $V^D (y,h, W+b)$ is the value of default, given that investors lose $-b$ when the government does not repay its debt. Note that $b<0$ implies indebtdeness.
+
+
+#box[We define the functional form of default $d in {0, 1}$ as follows:
+$
+  d(b,y,h, W) = cases(
+    1 #h(1cm) "if" V^R (b,y,h, W) < V^D (y,h, W+b),
+    0 #h(1cm) "otherwise"
+  )
+$]
+
+\
+
+The value of repayment satisfies the following functional equation:
+$
+  V^R (b,y,h) = max_(b') {u(y dot h + b - q(b', y, W) [b' - (1-psi)b]) + beta #math.bb("E")_(y', h')[V^o (b', y', h', W')]}
+$
+\
+
+The value of default takes into account the fact that defaulting entails an output cost and a temporary financial exclusion from markets. It is given by the following expression:
+$
+  V^D (y,h, W+b) = u(y^("def") dot h) + beta #math.bb("E")_(y', h') [theta V^o (0, y', h', W') + (1-theta) V^D (y', h', W')]
+$
+where $theta$ is the probability to rejoin markets after exclusion.
+
+\
+
+Following Arellano (2008) and Lizarazo (2013), the government's default policy can be described through default sets $D(b|W)$.
+\
+*Definition 1.* #h(0.5cm) Let $D(b|W)$ denote the default set which consists of the equilibrium set of exogenous state pairs $ (y, h)$ for which default is optiaml when the government's asset holdings are $b$, conditional on a given level of investor wealth $W$. Formally:
+$
+  D(b|W) = {(y, h) in S: V^R (b,y,h,W) < V^D (y,h, W+b) | W}
+$
+where $S = Y times H $ and refers to the joint state space of all realizable exogenous states. 
+
+\
+
+International risk averse investors have perfect information over the government output process (both income and hurricane shocks). They maximize their lifetime utility from consumption $c_t^L$:
+$ E_0[sum^(infinity)_(t=0) beta^t_L v(c_t^L)] $
+where $0 < beta_L < 1$ refers to the investors' subjective discount factor.
+
+The periodic utility of households displays a constant coefficient of relative risk aversion $gamma_L>0$, such that:
+$ v(c_t^L) = frac((c_t^L)^(1-gamma^L), 1-gamma^L) $ 
+The representative investor is endowed with $w_0$ at time 0 and receives exogenous income $X$ at each period.
+
+An investor invests in two types of assets:
+- a riskless asset (T-Bills) at price $q^f$
+- government bonds at price $q(b', y, W)$
+Their wealth $W$ refers to their asset position in T-Bills $w^("TB")$ and their position in government bonds $w$, such that:
+$
+  W = w^("TB") + w
+$
+where $w= -b$. If the government defaults, the representative investor's welath becomes $W - w= w^("TB")$
+
+
+Investors actions in this framework are constrained by government's decisions. Therefore, investors evolve either in the repayment branch or the default branch which would is determined by the government at the beginning of each period. Investors' resource constraints are defined as follows:
+- Government repayment branch
+$
+  c^("L,R") = X + W - q^f (w^("TB"))' - q(b', y, W)[w' - (1-psi)w]
+$
+- Government defaults on its debt
+$
+  c^("L,D") = X + w^("TB") - q^f (w^("TB"))'
+$
+Consequently, investor value functions also depend on the government's decision to default. Formally:
+$
+  V^o_L (b, y, W) = cases(
+    V^R_L (b, y, W) #h(1.5cm) "if" d(b, y, h, W) = 0, 
+    V^D_L (y, w^("TB")) #h(1.5cm) "if" d(b, y, h, W) = 1
+  )
+$
+where:
+- Government repayment branch
+$
+  V^R_L (b,y,W) = max_(w', (w^("TB"))') {v(X + W - q^f (w^("TB"))' - q(b', y, W)[w' - (1-psi)w]) + beta #math.bb("E")_(y', h')[V^o (b, y, h, W)]}
+$
+- Government default branch
+$
+  V^D_L (y, w^("TB")) = max_((w^("TB"))') {v(X + w^("TB") - q^f (w^("TB"))') + beta #math.bb("E")_(y', h') [theta V^o (0, y', (w^("TB"))') + (1-theta) V^D (y', (w^("TB"))')]}
+$
+
+Therefore, risk-averse investors face an optimization problem. They need to choose their optimal portfolio to maximize their expected discounted utility subject to the law of motion of wealth. Solving for the investor’s FOCs allows us to determine the price investors associate with government bonds, given their wealth and expectations of government default.
+
+\
+
+_Pricing equation_ #h(0.5cm) From the FOC with respect to $w'$:
+$
+  q(b', y, W) = beta_L #math.bb("E")_(y', h' | y) [ frac([(1-d(b',y',h',W')) dot (1+q(b'',y',W')(1-psi)) dot frac(∂v((c^L)'),∂(c^L)' )], frac(∂ v(c^L),∂ c^L )) ]
+$
+
+Additionally, from the FOC with respect to $(w^("TB"))'$:
+$
+  q^f = beta_L dot frac(1, frac(∂ v(c^L),∂ c^L )) dot #math.bb("E")_(y' | y) [ frac(∂v((c^L)'),∂(c^L)' ) ]
+$
+
+Using both expressions, we can derive the following pricing equation:
+$
+  q(b', y, W) & = beta_L frac(#math.bb("Cov") [frac(∂ v(c^L)',∂ (c^L)' ), (1-d(b',y',h',W')) dot (1+q(b'',y',W')(1-psi))]  ,frac(∂ v(c^L),∂ c^L )) \
+  & + q^f #math.bb("E") [ (1-d(b',y',h',W')) dot (1+q(b'',y',W')(1-psi)) ] \
+  & = xi^("RA") (b', y, W) + q^("RN")(b', y, W)
+$
+where:
+- $q^("RN")(b', y, W)$ is the price component which corresponds to the price of riskless
+bonds adjusted for the probability of default in a LT bond framework
+- $xi^("RA") (b', y, W)$ corresponds to the risk premium that sovereign bonds carry in order to induce risk averse investors to hold them, taking into account the LT decaying-coupon framework
 
 #pagebreak()
 
