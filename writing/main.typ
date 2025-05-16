@@ -1134,7 +1134,7 @@ Using both expressions, we can derive the following pricing equation:
 $
   q(b', y, W) & = beta_L frac(#math.bb("Cov") [frac(∂ v(c^L)',∂ (c^L)' ), (1-d(b',y',h',W')) dot (1+q(b'',y',W')(1-psi))]  ,frac(∂ v(c^L),∂ c^L )) \
   & + q^f #math.bb("E") [ (1-d(b',y',h',W')) dot (1+q(b'',y',W')(1-psi)) ] \
-  & = xi^("RA") (b', y, W) + q^("RN")(b', y, W)
+  q(b', y, W) & = xi^("RA") (b', y, W) + q^("RN")(b', y, W)
 $
 where:
 - $q^("RN")(b', y, W)$ is the price component which corresponds to the price of riskless

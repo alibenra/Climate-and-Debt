@@ -520,10 +520,10 @@ end
 
 function main_country_CAT_RN(country::String)
     # -- Global Parameter Setup --
-    N_y = 63
-    N_h = 20
+    N_y = 11
+    N_h = 5
     N_x = N_y * N_h
-    N_b_g = 150
+    N_b_g = 100
     λ = 1 / 3
 
     int_y = 2.5 * (N_y != 1 ? 1 : 0) + eps() * (N_y == 1)
