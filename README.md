@@ -1,6 +1,6 @@
 # Climate Resilience in Sovereign Debt: Simulation Package
 
-**Authors**: Ali Benramdane \
+**Author**: Ali Benramdane \
 **Project**: Master's Thesis, Sciences Po, 2025  \
 **Supervisor**: Stéphane Guibaud
 
