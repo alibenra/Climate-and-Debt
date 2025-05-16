@@ -1,12 +1,12 @@
 # Climate Resilience in Sovereign Debt: Simulation Package
 
-**Authors**: Ali Benramdane
-**Project**: Master's Thesis, Sciences Po, 2025  
+**Authors**: Ali Benramdane \
+**Project**: Master's Thesis, Sciences Po, 2025  \
 **Supervisor**: Stéphane Guibaud
 
 ## Overview
 
-This repository contains the full Julia-based simulation framework for the thesis *"Bringing Climate Resilience into Sovereign Debt"*. 
+This repository contains the full Julia-based simulation framework for the Master's thesis *"Bringing Climate Resilience into Sovereign Debt"*. 
 
 All simulations and outputs (Typst format) are reproducible through the Julia scripts provided in this repository.
 
@@ -25,7 +25,7 @@ All simulations and outputs (Typst format) are reproducible through the Julia sc
 
 ### Prerequisites
 
-- Code version: Julia v1.11.2
+- Julia v1.11.2
 - List of relevant packages: 
   - `DataStructures`, 
   - `Plots`, 
@@ -37,11 +37,11 @@ All simulations and outputs (Typst format) are reproducible through the Julia sc
   - `JLD2`, 
   - `DataFrames`,
   - `Random`,
-  - `Measures`,
+  - `Measures`
 
 ### Running the Project
 - Download or clone the repository to your local machine
-- Open the folder in VS Code with the Julia extension installed
+- Using VS Code, open the folder with the Julia extension installed
 - In the `scripts/` folder, open and run `run_all.jl` to reproduce all simulations and generate outputs
   - The first line of the script `cd(normpath(joinpath(@__DIR__, "..")))` ensures that that all file paths are relative to the main project folder to avoid manual setup.
 
