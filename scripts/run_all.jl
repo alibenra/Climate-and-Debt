@@ -111,10 +111,10 @@ plot_cat_welfare(df_welfare_climate; filename = "Welfare_vs_CAT_Share_Climate")
 #include("CAT_RN_Share100.jl")
 
 # --- Step 2: Generate Welfare Gain Summary ---
-include("welfare_gains_Share.jl")
+#include("welfare_gains_Share.jl")
 
 # --- Step 3: Generate Typst Simulation Tables ---
-include("generate_sim_summary_Share.jl")
+#include("generate_sim_summary_Share.jl")
 
 # --- Step 4: Individual Bond Price Schedule Graphs ---
 #plot_and_save_bond_schedule(result_CAT_RN_share1; filename="BondSchedule_CAT_RN_Share1")
